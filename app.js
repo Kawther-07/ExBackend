@@ -2,14 +2,13 @@ const express = require('express');
 const { Pool } = require('pg');
 const sequelize = require('./models/admin'); // Import Sequelize instance
 
-// const bodyParser = require('body-parser');
-
+const bodyParser = require('body-parser');
+const apiRoutes = require('./routes/api');
 
 // Create an Express application
 const app = express();
+app.use(bodyParser.json());
 
-
-// I tried this and it didn't work
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
@@ -17,7 +16,7 @@ app.use(express.json());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'DFU_DB',
+  database: 'DFU_DB4',
   password: 'kawther1234',
   port: 5432, // PostgreSQL default port
 });
@@ -40,10 +39,7 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// Define routes
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+app.use('/api', apiRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

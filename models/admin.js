@@ -2,7 +2,7 @@ const { DataTypes, Sequelize } = require('sequelize');
 const bcrypt = require("bcrypt");
 
 // Initialize Sequelize connection
-const sequelize = new Sequelize('DFU_DB', 'postgres', 'kawther1234', {
+const sequelize = new Sequelize('DFU_DB4', 'postgres', 'kawther1234', {
   host: 'localhost',
   dialect: 'postgres',
 });
@@ -10,9 +10,9 @@ const sequelize = new Sequelize('DFU_DB', 'postgres', 'kawther1234', {
 // Define the Admin model
 const Admin = sequelize.define('admin', {
     id: {
-        type: DataTypes.UUID,
+        type: DataTypes.STRING,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4
+        // defaultValue: Sequelize.UUIDV4
     },
     first_name: {
         type: DataTypes.STRING,
@@ -38,17 +38,18 @@ const Admin = sequelize.define('admin', {
         type: DataTypes.STRING,
         allowNull: false
     }
+
 });
 
 // Hash password before saving
 Admin.beforeCreate(async (admin) => {
     const salt = await bcrypt.genSalt(10);
-    admin.mot_de_passe = await bcrypt.hash(admin.mot_de_passe, salt);
+    admin.mot_de_passe = await bcrypt.hash(admin.password, salt);
 });
 
 // Method to compare passwords
 Admin.prototype.compareMot_de_passe = async function (candidateMot_de_passe) {
-    return bcrypt.compare(candidateMot_de_passe, this.mot_de_passe);
+    return bcrypt.compare(candidateMot_de_passe, this.password);
 };
 
 // Synchronize the model with the database
