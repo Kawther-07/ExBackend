@@ -1,7 +1,10 @@
 const Doctor = require('../models/doctor');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-// Create an doctor
+const DoctorServices = require('../services/doctor.service');
+
+// Create doctor
 exports.createDoctor = async (req, res) => {
     try {
         const { first_name, last_name, email, phone, password, role } = req.body;
@@ -26,13 +29,17 @@ exports.createDoctor = async (req, res) => {
 };
 
 
-// Log in the doctor
+// Login doctor
 exports.loginDoctor = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ status: false, message: 'Invalid parameters' });
+        }
+
         // Retrieve doctor by email
-        const doctor = await Doctor.findOne({ where: { email } });
+        let doctor = await DoctorServices.checkDoctor(email);
         if (!doctor) {
             return res.status(404).json({ status: false, message: 'Doctor does not exist' });
         }
@@ -40,12 +47,32 @@ exports.loginDoctor = async (req, res, next) => {
         // Compare passwords
         const isPasswordCorrect = await bcrypt.compare(password, doctor.password);
         if (!isPasswordCorrect) {
-            return res.status(401).json({ status: false, message: 'Incorrect doctor name or password' });
+            return res.status(401).json({ status: false, message: 'Invalid doctor name or password' });
         }
 
-        res.status(200).json({ status: true, message: 'Successfully logged in', id: doctor.id });
+        // Generate JWT token
+        const tokenData = { id: doctor.id, email: doctor.email }; 
+        const token = await DoctorServices.generateAccessToken(tokenData, "secret", "1h")
+
+        res.status(200).json({ status: true, success: "Successfully logged in", token, name: doctor.first_name });
     } catch (error) {
         console.error('Error logging in doctor:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+// Logout doctor
+exports.logoutDoctor = async (req, res) => {
+    try {
+        const token = req.headers.authorization;
+
+        if (!token) {
+            return res.status(400).json({ status: false, message: 'Token not provided' });
+        }
+
+        return res.status(200).json({ status: true, message: 'Logout successful' });
+    } catch (error) {
+        console.error('Error during logout:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
