@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Doctor = require('../models/doctor');
 
-class DoctortServices {
+class DoctorServices {
     static async registerDoctor(first_name, last_name, email, phone, password, role) {
         try {
             // Hash the password

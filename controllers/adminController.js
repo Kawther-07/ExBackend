@@ -1,5 +1,8 @@
 const Admin = require('../models/admin');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const AdminServices = require('../services/admin.service');
 
 // Create an admin
 exports.createAdmin = async (req, res) => {
@@ -21,18 +24,21 @@ exports.createAdmin = async (req, res) => {
         res.json({ status: true, message: 'Admin registered successfully', id: admin.id });
     } catch (error) {
         console.error('Error creating admin:', error);
-        res.status(500).json({ status: false, message:  'Internal server error' });
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
-
 
 // Log in the admin
 exports.loginAdmin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ status: false, message: 'Invalid parameters' });
+        }
+
         // Retrieve admin by email
-        const admin = await Admin.findOne({ where: { email } });
+        let admin = await AdminServices.checkAdmin(email);
         if (!admin) {
             return res.status(404).json({ status: false, message: 'Admin does not exist' });
         }
@@ -40,10 +46,14 @@ exports.loginAdmin = async (req, res, next) => {
         // Compare passwords
         const isPasswordCorrect = await bcrypt.compare(password, admin.password);
         if (!isPasswordCorrect) {
-            return res.status(401).json({ status: false, message: 'Incorrect administrator name or password' });
+            return res.status(401).json({ status: false, message: 'Invalid administrator name or password' });
         }
 
-        res.status(200).json({ status: true, message: 'Successfully logged in', id: admin.id });
+        // Generate JWT token
+        const tokenData = { id: admin.id, email: admin.email }; // Customize token payload as needed
+        const token = await AdminServices.generateAccessToken(tokenData, "secret", "1h")
+
+        res.status(200).json({ status: true, success: "Successfully logged in", token, name: admin.first_name });
     } catch (error) {
         console.error('Error logging in admin:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });

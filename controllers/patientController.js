@@ -1,5 +1,8 @@
 const Patient = require('../models/patient');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const PatientServices = require('../services/patient.service');
 
 // Create an patient
 exports.createPatient = async (req, res) => {
@@ -31,8 +34,12 @@ exports.loginPatient = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ status: false, message: 'Invalid parameters' });
+        }
+
         // Retrieve patient by email
-        const patient = await Patient.findOne({ where: { email } });
+        let patient = await PatientServices.checkPatient(email);
         if (!patient) {
             return res.status(404).json({ status: false, message: 'Patient does not exist' });
         }
@@ -40,10 +47,14 @@ exports.loginPatient = async (req, res, next) => {
         // Compare passwords
         const isPasswordCorrect = await bcrypt.compare(password, patient.password);
         if (!isPasswordCorrect) {
-            return res.status(401).json({ status: false, message: 'Incorrect patient name or password' });
+            return res.status(401).json({ status: false, message: 'Invalid patient name or password' });
         }
 
-        res.status(200).json({ status: true, message: 'Successfully logged in', id: patient.id });
+        // Generate JWT token
+        const tokenData = { id: patient.id, email: patient.email }; 
+        const token = await PatientServices.generateAccessToken(tokenData, "secret", "1h")
+
+        res.status(200).json({ status: true, success: "Successfully logged in", token, name: patient.first_name });
     } catch (error) {
         console.error('Error logging in patient:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
