@@ -78,3 +78,27 @@ exports.logoutAdmin = async (req, res) => {
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
+
+
+// Admin profile
+exports.getAdminProfile = async (req, res) => {
+    try {
+        const { email } = req.query; // Assuming you want to fetch the profile by email
+
+        // Retrieve admin by email
+        const admin = await Admin.findOne({ where: { email } });
+
+        if (!admin) {
+            return res.status(404).json({ status: false, message: 'Admin not found' });
+        }
+
+        // Exclude the password field from the admin object
+        const { password, ...adminWithoutPassword } = admin.toJSON();
+
+        // Return admin profile without the password
+        res.status(200).json({ status: true, admin: adminWithoutPassword });
+    } catch (error) {
+        console.error('Error fetching admin profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
