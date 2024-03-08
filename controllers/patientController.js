@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const PatientServices = require('../services/patient.service');
 
-// Create an patient
+// Create patient
 exports.createPatient = async (req, res) => {
     try {
         const { first_name, last_name, email, phone, password, age, height, weight, gender, role } = req.body;
@@ -29,7 +29,7 @@ exports.createPatient = async (req, res) => {
 };
 
 
-// Log in the patient
+// Login patient
 exports.loginPatient = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -57,6 +57,25 @@ exports.loginPatient = async (req, res, next) => {
         res.status(200).json({ status: true, success: "Successfully logged in", token, name: patient.first_name });
     } catch (error) {
         console.error('Error logging in patient:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+// Lougout patient
+exports.logoutPatient = async (req, res) => {
+    try {
+        const token = req.headers.authorization;
+
+        if (!token) {
+            return res.status(400).json({ status: false, message: 'Token not provided' });
+        }
+
+        // You can perform any additional validation here if needed
+
+        // Return success response
+        return res.status(200).json({ status: true, message: 'Logout successful' });
+    } catch (error) {
+        console.error('Error during logout:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };

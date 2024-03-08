@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const AdminServices = require('../services/admin.service');
 
-// Create an admin
+// Create admin
 exports.createAdmin = async (req, res) => {
     try {
         const { first_name, last_name, email, phone, password, role } = req.body;
@@ -28,7 +28,7 @@ exports.createAdmin = async (req, res) => {
     }
 };
 
-// Log in the admin
+// Login admin
 exports.loginAdmin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -56,6 +56,25 @@ exports.loginAdmin = async (req, res, next) => {
         res.status(200).json({ status: true, success: "Successfully logged in", token, name: admin.first_name });
     } catch (error) {
         console.error('Error logging in admin:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+// Logout admin
+exports.logoutAdmin = async (req, res) => {
+    try {
+        const token = req.headers.authorization;
+
+        if (!token) {
+            return res.status(400).json({ status: false, message: 'Token not provided' });
+        }
+
+        // You can perform any additional validation here if needed
+
+        // Return success response
+        return res.status(200).json({ status: true, message: 'Logout successful' });
+    } catch (error) {
+        console.error('Error during logout:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
