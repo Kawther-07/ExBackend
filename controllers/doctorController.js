@@ -76,3 +76,26 @@ exports.logoutDoctor = async (req, res) => {
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
+
+// Doctor profile
+exports.getDoctorProfile = async (req, res) => {
+    try {
+        const { email } = req.query; // Assuming you want to fetch the profile by email
+
+        // Retrieve doctor by email
+        const doctor = await Doctor.findOne({ where: { email } });
+
+        if (!doctor) {
+            return res.status(404).json({ status: false, message: 'Doctor not found' });
+        }
+
+        // Exclude the password field from the doctor object
+        const { password, ...doctorWithoutPassword } = doctor.toJSON();
+
+        // Return doctor profile without the password
+        res.status(200).json({ status: true, doctor: doctorWithoutPassword });
+    } catch (error) {
+        console.error('Error fetching doctor profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};

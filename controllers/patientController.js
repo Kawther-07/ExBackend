@@ -79,3 +79,26 @@ exports.logoutPatient = async (req, res) => {
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
+
+// Patient profile
+exports.getPatientProfile = async (req, res) => {
+    try {
+        const { email } = req.query; // Assuming you want to fetch the profile by email
+
+        // Retrieve patient by email
+        const patient = await Patient.findOne({ where: { email } });
+
+        if (!patient) {
+            return res.status(404).json({ status: false, message: 'Patient not found' });
+        }
+
+        // Exclude the password field from the patient object
+        const { password, ...patientWithoutPassword } = patient.toJSON();
+
+        // Return patient profile without the password
+        res.status(200).json({ status: true, patient: patientWithoutPassword });
+    } catch (error) {
+        console.error('Error fetching patient profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
