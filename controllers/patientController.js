@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const PatientServices = require('../services/patient.service');
+const MedicalRecordService = require('../services/medicalRecord.service');
 
 // Create patient
 exports.createPatient = async (req, res) => {
@@ -97,6 +98,26 @@ exports.getPatientProfile = async (req, res) => {
 
         // Return patient profile without the password
         res.status(200).json({ status: true, patient: patientWithoutPassword });
+    } catch (error) {
+        console.error('Error fetching patient profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+exports.getPatientProfile = async (req, res) => {
+    try {
+        const { email } = req.query;
+
+        const patient = await Patient.findOne({ where: { email } });
+        if (!patient) {
+            return res.status(404).json({ status: false, message: 'Patient not found' });
+        }
+
+        const medicalRecord = await MedicalRecordService.getMedicalRecordByPatientId(patient.id);
+
+        const { password, ...patientWithoutPassword } = patient.toJSON();
+
+        res.status(200).json({ status: true, patient: patientWithoutPassword, medicalRecord });
     } catch (error) {
         console.error('Error fetching patient profile:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
