@@ -21,33 +21,33 @@ const Patient = sequelize.define('patient', {
         unique: true
     },
     phone: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    age: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    height: {
-        type: DataTypes.FLOAT,
-        allowNull: false
-    },
-    weight: {
-        type: DataTypes.FLOAT,
-        allowNull: false
-    },
-    gender: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    role: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
+    // age: {
+    //     type: DataTypes.INTEGER,
+    //     allowNull: false
+    // },
+    // height: {
+    //     type: DataTypes.FLOAT,
+    //     allowNull: false
+    // },
+    // weight: {
+    //     type: DataTypes.FLOAT,
+    //     allowNull: false
+    // },
+    // gender: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // },
+    // role: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // },
 }, {
     timestamps: false // Disable timestamps
 });

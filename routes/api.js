@@ -20,7 +20,7 @@ router.get('/doctor/profile', doctorController.getDoctorProfile);
 
 // Patient
 router.post('/patient', patientController.createPatient);
-router.get('/patient', patientController.loginPatient);
+router.get('/patient/login', patientController.loginPatient);
 router.post('/patient/logout', adminController.logoutAdmin);
 router.get('/patient/profile', patientController.getPatientProfile);
 
