@@ -18,37 +18,35 @@ const Patient = sequelize.define('patient', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            isEmail: true 
+        }
     },
     phone: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    // age: {
-    //     type: DataTypes.INTEGER,
-    //     allowNull: false
-    // },
-    // height: {
-    //     type: DataTypes.FLOAT,
-    //     allowNull: false
-    // },
-    // weight: {
-    //     type: DataTypes.FLOAT,
-    //     allowNull: false
-    // },
-    // gender: {
-    //     type: DataTypes.STRING,
-    //     allowNull: false
-    // },
-    // role: {
-    //     type: DataTypes.STRING,
-    //     allowNull: false
-    // },
 }, {
-    timestamps: false // Disable timestamps
+    timestamps: false
 });
+
+
+Patient.beforeCreate(validatePhone);
+Patient.beforeUpdate(validatePhone);
+
+
+function validatePhone(patient) {
+    if (patient.phone) {
+        const phoneRegex = /^(06|05|07)\d{8}$/;
+        if (!phoneRegex.test(patient.phone.toString())) {
+            throw new Error('Phone number must start with 06, 05 or 07 and be 10 digits long.');
+        }
+    }
+}
+
 module.exports = Patient;

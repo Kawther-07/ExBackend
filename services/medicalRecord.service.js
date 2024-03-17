@@ -1,19 +1,16 @@
 const MedicalRecord = require('../models/medicalRecord');
 
 class MedicalRecordService {
-    static async createMedicalRecord(patientId, diabetesType, hasDFU, isSmoker, glycemia, diab_duration, age, height, weight, gender) {
+    static async createMedicalRecord(patientId, doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup) {
         try {
             const medicalRecord = await MedicalRecord.create({
                 patientId,
+                doctorId,
                 diabetesType,
                 hasDFU,
                 isSmoker,
-                glycemia,
-                diab_duration,
-                age,
-                height,
-                weight,
-                gender
+                hadDiabetes,
+                bloodGroup
             });
             return medicalRecord;
         } catch (error) {

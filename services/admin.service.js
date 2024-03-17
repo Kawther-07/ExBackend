@@ -5,11 +5,9 @@ const Admin = require('../models/admin');
 class AdminServices {
     static async registerAdmin(first_name, last_name, email, phone, password, role) {
         try {
-            // Hash the password
             const salt = await bcrypt.genSalt(10);
             const hash = await bcrypt.hash(password, salt);
 
-            // Insert the new admin into the database
             const admin = await Admin.create({ first_name, last_name, email, phone, password: hash, role });
 
             return admin;

@@ -7,9 +7,9 @@ const DoctorServices = require('../services/doctor.service');
 // Create doctor
 exports.createDoctor = async (req, res) => {
     try {
-        const { first_name, last_name, email, phone, password, role } = req.body;
+        const { first_name, last_name, email, phone, password, role, specialty, address } = req.body;
         
-        // Check if v with the same email already exists
+        // Check if doctor with the same email already exists
         const existingDoctor = await Doctor.findOne({ where: { email } });
         if (existingDoctor) {
             return res.status(400).json({ status: false, message: `The email ${email} is already registered` });
@@ -20,7 +20,7 @@ exports.createDoctor = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create new doctor with hashed password
-        const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hashedPassword, role });
+        const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hashedPassword, role, specialty, address });
         res.json({ status: true, message: 'Doctor registered successfully', id: doctor.id });
     } catch (error) {
         console.error('Error creating doctor:', error);
@@ -30,7 +30,7 @@ exports.createDoctor = async (req, res) => {
 
 
 // Login doctor
-exports.loginDoctor = async (req, res, next) => {
+exports.loginDoctor = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -61,7 +61,7 @@ exports.loginDoctor = async (req, res, next) => {
     }
 };
 
-// Logout doctor
+// Logout doctor ----not final
 exports.logoutDoctor = async (req, res) => {
     try {
         const token = req.headers.authorization;
@@ -80,8 +80,7 @@ exports.logoutDoctor = async (req, res) => {
 // Doctor profile
 exports.getDoctorProfile = async (req, res) => {
     try {
-        const { email } = req.query; // Assuming you want to fetch the profile by email
-
+        const { email } = req.query;
         // Retrieve doctor by email
         const doctor = await Doctor.findOne({ where: { email } });
 

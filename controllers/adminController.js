@@ -29,7 +29,7 @@ exports.createAdmin = async (req, res) => {
 };
 
 // Login admin
-exports.loginAdmin = async (req, res, next) => {
+exports.loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -60,7 +60,7 @@ exports.loginAdmin = async (req, res, next) => {
     }
 };
 
-// Logout admin
+// Logout admin ----- Not final
 exports.logoutAdmin = async (req, res) => {
     try {
         const token = req.headers.authorization;
@@ -68,8 +68,6 @@ exports.logoutAdmin = async (req, res) => {
         if (!token) {
             return res.status(400).json({ status: false, message: 'Token not provided' });
         }
-
-        // You can perform any additional validation here if needed
 
         // Return success response
         return res.status(200).json({ status: true, message: 'Logout successful' });
@@ -83,7 +81,7 @@ exports.logoutAdmin = async (req, res) => {
 // Admin profile
 exports.getAdminProfile = async (req, res) => {
     try {
-        const { email } = req.query; // Assuming you want to fetch the profile by email
+        const { email } = req.query;
 
         // Retrieve admin by email
         const admin = await Admin.findOne({ where: { email } });

@@ -4,9 +4,9 @@ const MedicalRecordService = require('../services/medicalRecord.service');
 
 exports.createMedicalRecord = async (req, res) => {
     try {
-        const { patientId, diabetesType, hasDFU, isSmoker, glycemia, diab_duration, age, height, weight, gender } = req.body;
+        const { patientId, doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup } = req.body;
         
-        const medicalRecord = await MedicalRecordService.createMedicalRecord(patientId, diabetesType, hasDFU, isSmoker, glycemia, diab_duration, age, height, weight, gender);
+        const medicalRecord = await MedicalRecordService.createMedicalRecord(patientId, doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup);
 
         res.status(201).json({ status: true, message: 'Medical record created successfully', medicalRecord });
     } catch (error) {
