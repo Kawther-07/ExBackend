@@ -62,7 +62,7 @@ exports.loginPatient = async (req, res, next) => {
     }
 };
 
-// Lougout patient
+// Lougout patient ----not finale
 exports.logoutPatient = async (req, res) => {
     try {
         const token = req.headers.authorization;
@@ -70,8 +70,6 @@ exports.logoutPatient = async (req, res) => {
         if (!token) {
             return res.status(400).json({ status: false, message: 'Token not provided' });
         }
-
-        // You can perform any additional validation here if needed
 
         // Return success response
         return res.status(200).json({ status: true, message: 'Logout successful' });
@@ -82,44 +80,44 @@ exports.logoutPatient = async (req, res) => {
 };
 
 // Patient profile
-exports.getPatientProfile = async (req, res) => {
-    try {
-        const { email } = req.query; // Assuming you want to fetch the profile by email
+// exports.getPatientProfile = async (req, res) => {
+//     try {
+//         const { email } = req.query; // Assuming you want to fetch the profile by email
 
-        // Retrieve patient by email
-        const patient = await Patient.findOne({ where: { email } });
+//         // Retrieve patient by email
+//         const patient = await Patient.findOne({ where: { email } });
 
-        if (!patient) {
-            return res.status(404).json({ status: false, message: 'Patient not found' });
-        }
+//         if (!patient) {
+//             return res.status(404).json({ status: false, message: 'Patient not found' });
+//         }
 
-        // Exclude the password field from the patient object
-        const { password, ...patientWithoutPassword } = patient.toJSON();
+//         // Exclude the password field from the patient object
+//         const { password, ...patientWithoutPassword } = patient.toJSON();
 
-        // Return patient profile without the password
-        res.status(200).json({ status: true, patient: patientWithoutPassword });
-    } catch (error) {
-        console.error('Error fetching patient profile:', error);
-        res.status(500).json({ status: false, message: 'Internal server error' });
-    }
-};
+//         // Return patient profile without the password
+//         res.status(200).json({ status: true, patient: patientWithoutPassword });
+//     } catch (error) {
+//         console.error('Error fetching patient profile:', error);
+//         res.status(500).json({ status: false, message: 'Internal server error' });
+//     }
+// };
 
-exports.getPatientProfile = async (req, res) => {
-    try {
-        const { email } = req.query;
+// exports.getPatientProfile = async (req, res) => {
+//     try {
+//         const { email } = req.query;
 
-        const patient = await Patient.findOne({ where: { email } });
-        if (!patient) {
-            return res.status(404).json({ status: false, message: 'Patient not found' });
-        }
+//         const patient = await Patient.findOne({ where: { email } });
+//         if (!patient) {
+//             return res.status(404).json({ status: false, message: 'Patient not found' });
+//         }
 
-        const medicalRecord = await MedicalRecordService.getMedicalRecordByPatientId(patient.id);
+//         const medicalRecord = await MedicalRecordService.getMedicalRecordByPatientId(patient.id);
 
-        const { password, ...patientWithoutPassword } = patient.toJSON();
+//         const { password, ...patientWithoutPassword } = patient.toJSON();
 
-        res.status(200).json({ status: true, patient: patientWithoutPassword, medicalRecord });
-    } catch (error) {
-        console.error('Error fetching patient profile:', error);
-        res.status(500).json({ status: false, message: 'Internal server error' });
-    }
-};
+//         res.status(200).json({ status: true, patient: patientWithoutPassword, medicalRecord });
+//     } catch (error) {
+//         console.error('Error fetching patient profile:', error);
+//         res.status(500).json({ status: false, message: 'Internal server error' });
+//     }
+// };

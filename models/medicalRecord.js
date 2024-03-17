@@ -1,6 +1,10 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+const moment = require('moment');
+
 const MedicalRecord = sequelize.define('medical_record', {
     id: {
         type: DataTypes.INTEGER,
@@ -12,6 +16,14 @@ const MedicalRecord = sequelize.define('medical_record', {
         allowNull: false,
         references: {
             model: 'patients',
+            key: 'id'
+        }
+    },
+    doctorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'doctors',
             key: 'id'
         }
     },
@@ -27,32 +39,39 @@ const MedicalRecord = sequelize.define('medical_record', {
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
-    glycemia: {
-        type: DataTypes.DOUBLE,
+    hadDiabetes: {
+        type: DataTypes.DATEONLY,
         allowNull: false
     },
-    diab_duration: {
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    age: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    height: {
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    weight: {
-        type: DataTypes.DOUBLE,
-        allowNull: false
-    },
-    gender: {
+    bloodGroup: {
         type: DataTypes.STRING,
-        allowNull: false
-    },
+        allowNull: true,
+        validate: {
+            isValidBloodGroup(value) {
+                if (value && !validBloodGroups.includes(value.toUpperCase())) {
+                    throw new Error('Invalid blood group');
+                }
+            }
+        }
+    }
 }, {
-    timestamps: false
+    timestamps: true, 
+    underscored: true,
 });
+
+// Define virtual fields for formatted timestamps
+MedicalRecord.prototype.toJSON = function() {
+    const values = Object.assign({}, this.get());
+
+    // Format timestamps
+    values.createdAtFormatted = moment(this.createdAt).format('YYYY-MM-DD HH:mm A');
+    values.updatedAtFormatted = moment(this.updatedAt).format('YYYY-MM-DD HH:mm A');
+
+    // Exclude original timestamps
+    delete values.createdAt;
+    delete values.updatedAt;
+
+    return values;
+};
 
 module.exports = MedicalRecord;

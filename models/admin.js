@@ -18,11 +18,14 @@ const Admin = sequelize.define('admin', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            isEmail: true 
+        }
     },
     phone: {
-        type: DataTypes.BIGINT,
-        allowNull: false
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
     password: {
         type: DataTypes.STRING,
@@ -33,6 +36,20 @@ const Admin = sequelize.define('admin', {
         allowNull: false
     },
 }, {
-    timestamps: false // Disable timestamps
+    timestamps: false 
 });
+
+
+Admin.beforeCreate(validatePhone);
+Admin.beforeUpdate(validatePhone);
+
+function validatePhone(admin) {
+    if (admin.phone) {
+        const phoneRegex = /^(06|05|07)\d{8}$/;
+        if (!phoneRegex.test(admin.phone.toString())) {
+            throw new Error('Phone number must start with 06, 05 or 07 and be 10 digits long.');
+        }
+    }
+}
+
 module.exports = Admin;
