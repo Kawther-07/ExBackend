@@ -62,7 +62,7 @@ exports.loginPatient = async (req, res, next) => {
     }
 };
 
-// Lougout patient ----not finale
+// Lougout patient ----FINALE
 exports.logoutPatient = async (req, res) => {
     try {
         const token = req.headers.authorization;
@@ -71,13 +71,33 @@ exports.logoutPatient = async (req, res) => {
             return res.status(400).json({ status: false, message: 'Token not provided' });
         }
 
-        // Return success response
+        res.clearCookie('token');
+
         return res.status(200).json({ status: true, message: 'Logout successful' });
     } catch (error) {
         console.error('Error during logout:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };
+
+
+
+exports.getPatientProfile = async (req, res) => {
+    try {
+        const { patientId } = req.params;
+        // Retrieve patient profile data
+        const profileData = await PatientServices.getPatientProfile(patientId);
+        // Retrieve patient's email by patientId
+        const userEmail = await PatientServices.getUserEmailById(patientId);
+        // Combine profile data with email address
+        const patientProfile = { ...profileData, email: userEmail };
+        res.json({ status: true, profile: patientProfile });
+    } catch (error) {
+        console.error('Error fetching patient profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
 
 // Patient profile
 // exports.getPatientProfile = async (req, res) => {

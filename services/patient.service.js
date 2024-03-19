@@ -25,6 +25,17 @@ class PatientServices {
         }
     }
 
+    static async getUserEmailById(patientId) {
+        try {
+            // Retrieve patient by ID
+            const patient = await Patient.findByPk(patientId);
+            // Return the patient's email
+            return patient.email;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async checkPatient(email) {
         try {
             const patient = await Patient.findOne({ where: { email } });

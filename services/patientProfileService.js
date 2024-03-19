@@ -19,3 +19,16 @@ exports.getPatientProfileByPatientId = async (patientId) => {
         throw new Error('Internal server error');
     }
 };
+
+exports.findLatestProfile = async (patientId) => {
+    try {
+        const latestProfile = await patientProfileService.findOne({
+            where: { patientId },
+            order: [['createdAt', 'DESC']] // Order by createdAt in descending order
+        });
+        return latestProfile;
+    } catch (error) {
+        console.error('Error finding latest profile:', error);
+        throw new Error('Internal server error');
+    }
+};
