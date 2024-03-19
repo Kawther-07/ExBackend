@@ -3,7 +3,9 @@ const adminController = require('../controllers/adminController');
 const doctorController = require('../controllers/doctorController');
 const patientController = require('../controllers/patientController');
 const patientProfileController = require('../controllers/patientProfileController');
-const medicolrecordController = require('../controllers/medicolrecordController');
+const medicalRecordController = require('../controllers/medicalrecordController');
+
+const forgotPasswordController = require('../controllers/forgotPasswordController');
 
 const router = express.Router();
 
@@ -27,16 +29,23 @@ router.post('/patient/login', patientController.loginPatient);
 router.post('/patient/logout', adminController.logoutAdmin);
 // router.get('/patient/profile', patientController.getPatientProfile);
 
-router.post('/medical-record', medicolrecordController.createMedicalRecord); 
+// router.post('/medical-record', medicolrecordController.createMedicalRecord); 
 // router.get('/medical-record/:patientId', medicolrecordController.getMedicalRecordByPatientId); 
 
 
-// Create a patient profile
+// Create patient personal profile
 router.post('/patient/profile', patientProfileController.createPatientProfile);
-
-// Get a patient profile by patientId
+// Get patient personal profile by patientId
 router.get('/patient/profile/:patientId', patientProfileController.getPatientProfile);
 
+// Medical record routes
+router.post('/medical-record', medicalRecordController.createMedicalRecord);
+router.get('/medical-record/:patientId', medicalRecordController.getMedicalRecord);
 
+
+// Forgot password
+router.post('/forgot-password', forgotPasswordController.forgotPassword);
+router.post('/verify-code', forgotPasswordController.verifyCode);
+router.post('/reset-password', forgotPasswordController.resetPassword);
 
 module.exports = router;
