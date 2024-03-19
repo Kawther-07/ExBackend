@@ -19,18 +19,24 @@ router.get('/admin/profile', adminController.getAdminProfile);
 // Doctor
 router.post('/doctor/register', doctorController.createDoctor);
 router.post('/doctor/login', doctorController.loginDoctor);
-router.post('/doctor/logout', adminController.logoutAdmin);
+router.post('/doctor/logout', doctorController.logoutDoctor);
 router.get('/doctor/profile', doctorController.getDoctorProfile);
 
 
 // Patient
 router.post('/patient', patientController.createPatient);
 router.post('/patient/login', patientController.loginPatient);
-router.post('/patient/logout', adminController.logoutAdmin);
+router.post('/patient/logout', patientController.logoutPatient);
 // router.get('/patient/profile', patientController.getPatientProfile);
 
 // router.post('/medical-record', medicolrecordController.createMedicalRecord); 
 // router.get('/medical-record/:patientId', medicolrecordController.getMedicalRecordByPatientId); 
+
+
+
+router.put('/patient/updateprofile/:patientId', patientProfileController.updatePatientProfile);
+
+
 
 
 // Create patient personal profile

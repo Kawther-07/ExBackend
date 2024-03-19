@@ -1,4 +1,3 @@
-const PatientProfile = require('../models/patientProfile');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const patientProfileService = require('../services/patientProfileService');
@@ -7,7 +6,7 @@ const patientProfileService = require('../services/patientProfileService');
 exports.createPatientProfile = async (req, res) => {
     try {
         // Extract necessary information from the request body
-        const { patientId, gender, height, weight, birth_date, pic } = req.body;
+        const { patientId, gender, height, weight, birth_date } = req.body;
 
         // Parse the birth date using moment.js, allowing for various date formats
         const formattedBirthDate = moment(birth_date).toDate();
@@ -18,8 +17,8 @@ exports.createPatientProfile = async (req, res) => {
             gender,
             height,
             weight,
-            birth_date: formattedBirthDate,
-            pic
+            birth_date: formattedBirthDate
+            
         };
         const profile = await patientProfileService.createPatientProfile(profileData);
 
@@ -47,9 +46,6 @@ exports.getPatientProfile = async (req, res) => {
         // Fetch the patient profile using the patientId
         const profile = await patientProfileService.getPatientProfileByPatientId(patientId);
 
-        // Log the fetched profile data
-        console.log('Fetched Profile Data:', profile);
-
         if (!profile) {
             return res.status(404).json({ status: false, message: 'Patient profile not found' });
         }
@@ -58,5 +54,33 @@ exports.getPatientProfile = async (req, res) => {
     } catch (error) {
         console.error('Error fetching patient profile:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+// Update patient's profile
+exports.updatePatientProfile = async (req, res) => {
+    try {
+        const { gender, height, weight, birth_date } = req.body;
+        const patientId = req.params.patientId;
+
+        const latestProfile = await patientProfileService.findLatestProfile(patientId);
+
+        if (!latestProfile) {
+            return res.status(404).json({ error: 'Latest profile not found' });
+        }
+
+        // Update profile data
+        latestProfile.gender = gender;
+        latestProfile.height = height;
+        latestProfile.weight = weight;
+        latestProfile.birth_date = birth_date;
+
+        // Save the updated profile
+        await latestProfile.save();
+
+        res.status(200).json({ status: true, message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error('Error updating patient profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
