@@ -37,7 +37,7 @@ const Patient = sequelize.define('patient', {
 
 
 Patient.beforeCreate(validatePhone);
-Patient.beforeUpdate(validatePhone);
+// Patient.beforeUpdate(validatePhone); needed to comment this for the reset password to work.
 
 
 function validatePhone(patient) {

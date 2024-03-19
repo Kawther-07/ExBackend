@@ -33,10 +33,10 @@ const PatientPersonalProfile = sequelize.define('patient_personalProfile', {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
-    pic: {
-        type: DataTypes.BLOB,
-        allowNull: true
-    }
+    // pic: {
+    //     type: DataTypes.BLOB,
+    //     allowNull: true
+    // }
 }, {
     timestamps: false
 });

@@ -41,7 +41,7 @@ const Admin = sequelize.define('admin', {
 
 
 Admin.beforeCreate(validatePhone);
-Admin.beforeUpdate(validatePhone);
+// Admin.beforeUpdate(validatePhone); needed to comment this for the reset password to work.
 
 function validatePhone(admin) {
     if (admin.phone) {

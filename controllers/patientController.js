@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const PatientServices = require('../services/patient.service');
-const MedicalRecordService = require('../services/medicalRecord.service');
+// const MedicalRecordService = require('../services/medicalRecordService');
 
 // Create patient
 exports.createPatient = async (req, res) => {
