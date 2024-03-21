@@ -52,7 +52,7 @@ exports.loginDoctor = async (req, res) => {
 
         // Generate JWT token
         const tokenData = { id: doctor.id, email: doctor.email }; 
-        const token = await DoctorServices.generateAccessToken(tokenData, "secret", "1h")
+        const token = await DoctorServices.generateAccessToken(tokenData, "secret", "24h")
 
         res.status(200).json({ status: true, success: "Successfully logged in", token, name: doctor.first_name });
     } catch (error) {

@@ -53,7 +53,7 @@ exports.loginPatient = async (req, res, next) => {
 
         // Generate JWT token
         const tokenData = { id: patient.id, email: patient.email }; 
-        const token = await PatientServices.generateAccessToken(tokenData, "secret", "1h")
+        const token = await PatientServices.generateAccessToken(tokenData, "secret", "24h")
 
         res.status(200).json({ status: true, success: "Successfully logged in", token, name: patient.first_name });
     } catch (error) {
@@ -94,6 +94,28 @@ exports.getPatientProfile = async (req, res) => {
         res.json({ status: true, profile: patientProfile });
     } catch (error) {
         console.error('Error fetching patient profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+
+exports.getPatientNameById = async (req, res) => {
+    try {
+        const { patientId } = req.params;
+
+        // Retrieve patient by ID
+        const patient = await Patient.findByPk(patientId);
+
+        // If patient not found, return 404
+        if (!patient) {
+            return res.status(404).json({ status: false, message: 'Patient not found' });
+        }
+
+        // Extract and return patient's name
+        const patientName = `${patient.first_name} ${patient.last_name}`;
+        res.json({ status: true, patientName });
+    } catch (error) {
+        console.error('Error fetching patient name:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
     }
 };

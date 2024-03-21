@@ -29,6 +29,10 @@ router.get('/doctor/profile', doctorController.getDoctorProfile);
 router.post('/patient', patientController.createPatient);
 router.post('/patient/login', patientController.loginPatient);
 router.post('/patient/logout', patientController.logoutPatient);
+
+
+// Get patient name by patient ID
+router.get('/patient/name/:patientId', patientController.getPatientNameById);
 // router.get('/patient/profile', patientController.getPatientProfile);
 
 // router.post('/medical-record', medicolrecordController.createMedicalRecord); 
