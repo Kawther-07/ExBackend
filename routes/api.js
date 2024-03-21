@@ -7,6 +7,8 @@ const medicalRecordController = require('../controllers/medicalrecordController'
 
 const forgotPasswordController = require('../controllers/forgotPasswordController');
 
+const glycemiaController = require('../controllers/glycemiaController');
+
 const router = express.Router();
 
 // Admin
@@ -27,6 +29,10 @@ router.get('/doctor/profile', doctorController.getDoctorProfile);
 router.post('/patient', patientController.createPatient);
 router.post('/patient/login', patientController.loginPatient);
 router.post('/patient/logout', patientController.logoutPatient);
+
+
+// Get patient name by patient ID
+router.get('/patient/name/:patientId', patientController.getPatientNameById);
 // router.get('/patient/profile', patientController.getPatientProfile);
 
 // router.post('/medical-record', medicolrecordController.createMedicalRecord); 
@@ -53,5 +59,12 @@ router.get('/medical-record/:patientId', medicalRecordController.getMedicalRecor
 router.post('/forgot-password', forgotPasswordController.forgotPassword);
 router.post('/verify-code', forgotPasswordController.verifyCode);
 router.post('/reset-password', forgotPasswordController.resetPassword);
+
+
+// Route to create a new glycemia record
+router.post('/glycemia', glycemiaController.createGlycemiaRecord);
+
+// Route to get glycemia records by patient ID
+router.get('/glycemia/:patientId', glycemiaController.getGlycemiaRecordsByPatientId);
 
 module.exports = router;

@@ -29,9 +29,9 @@ const Glycemia = sequelize.define('glycemia', {
 Glycemia.prototype.toJSON = function() {
     const values = Object.assign({}, this.get());
 
-    // Format timestamps
-    values.createdAtFormatted = moment(this.createdAt).format('YYYY-MM-DD HH:mm A');
-    values.updatedAtFormatted = moment(this.updatedAt).format('YYYY-MM-DD HH:mm A');
+    // Format timestamps without seconds
+    values.createdAtFormatted = moment(this.createdAt).format('YYYY-MM-DD HH:mm');
+    values.updatedAtFormatted = moment(this.updatedAt).format('YYYY-MM-DD HH:mm');
 
     // Exclude original timestamps
     delete values.createdAt;

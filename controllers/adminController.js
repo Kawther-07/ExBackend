@@ -51,7 +51,7 @@ exports.loginAdmin = async (req, res) => {
 
         // Generate JWT token
         const tokenData = { id: admin.id, email: admin.email }; // Customize token payload as needed
-        const token = await AdminServices.generateAccessToken(tokenData, "secret", "1h")
+        const token = await AdminServices.generateAccessToken(tokenData, "secret", "24h")
 
         res.status(200).json({ status: true, success: "Successfully logged in", token, name: admin.first_name });
     } catch (error) {

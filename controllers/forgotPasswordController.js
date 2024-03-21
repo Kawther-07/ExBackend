@@ -9,8 +9,8 @@ const PatientServices = require('../services/patient.service');
 const transporter = nodemailer.createTransport({
     service: 'gmail', // Example: Gmail
     auth: {
-        user: 'kawthergdg@gmail.com', // Your email address for the email service
-        pass: 'pjeo hcpt xoxu gybo' // Your email password or application-specific password
+        user: 'doolabcare@gmail.com', // Your email address for the email service
+        pass: 'jyuq lxnm pqvs lary' // Your email password or application-specific password
     }
 });
 
@@ -27,7 +27,7 @@ async function forgotPassword(req, res) {
 
             // Send email to user using the configured transporter
             await transporter.sendMail({
-                from: 'kawthergdg@gmail.com', // Sender's email address
+                from: 'doolabcare@gmail.com', // Sender's email address
                 to: email,
                 subject: 'Password Reset Code',
                 text: `Your verification code is: ${verificationCode}`,
