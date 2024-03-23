@@ -1,17 +1,20 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
-const sequelize = new Sequelize('testing', 'postgres', 'kawther1234', {
-  host: 'localhost',
-  dialect: 'postgres',
+// postgresql://postgres:Ece51FF6c3aeF--465ACDFf6*32FbEGD@viaduct.proxy.rlwy.net:24957/railway
+const sequelize = new Sequelize("railway", "postgres", "Ece51FF6c3aeF--465ACDFf6*32FbEGD", {
+  host: "viaduct.proxy.rlwy.net",
+  dialect: "postgres",
+  port: 24957,
 });
 
 // Synchronize models with the database
-sequelize.sync()
+sequelize
+  .sync()
   .then(() => {
-    console.log('Models synchronized with database');
+    console.log("Models synchronized with database");
   })
-  .catch(err => {
-    console.error('Error synchronizing models:', err);
+  .catch((err) => {
+    console.error("Error synchronizing models:", err);
   });
 
 module.exports = sequelize;

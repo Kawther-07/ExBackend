@@ -25,8 +25,9 @@ const Medication = sequelize.define('medication', {
         allowNull: false
     }
 }, {
-    timestamps: true, 
+    timestamps: true,
     underscored: true,
+    tableName: 'medication'
 });
 
 // Define virtual fields for formatted timestamps

@@ -15,7 +15,7 @@ const MedicalRecord = sequelize.define('medical_record', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'patients',
+            model: 'patient',
             key: 'id'
         }
     },
@@ -23,7 +23,7 @@ const MedicalRecord = sequelize.define('medical_record', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'doctors',
+            model: 'doctor',
             key: 'id'
         }
     },
@@ -57,6 +57,7 @@ const MedicalRecord = sequelize.define('medical_record', {
 }, {
     timestamps: true, 
     underscored: true,
+    tableName: 'medical_record'
 });
 
 // Define virtual fields for formatted timestamps
