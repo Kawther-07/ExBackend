@@ -38,12 +38,7 @@ router.get('/patient/name/:patientId', patientController.getPatientNameById);
 // router.post('/medical-record', medicolrecordController.createMedicalRecord); 
 // router.get('/medical-record/:patientId', medicolrecordController.getMedicalRecordByPatientId); 
 
-
-
-router.put('/patient/updateprofile/:patientId', patientProfileController.updatePatientProfile);
-
-
-
+router.patch('/patient/updateprofile/:patientId', patientProfileController.updatePatientProfile);
 
 // Create patient personal profile
 router.post('/patient/profile', patientProfileController.createPatientProfile);
