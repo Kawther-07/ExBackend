@@ -72,8 +72,6 @@ class PatientServices {
     }
 }
 
-
-
 }
 
 module.exports = PatientServices;

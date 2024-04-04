@@ -33,16 +33,8 @@ exports.createPatientProfile = async (req, res) => {
 // Get patient's profile by patientId
 exports.getPatientProfile = async (req, res) => {
     try {
-        // Extract the patient's ID from the token if it exists
-        const authorizationHeader = req.headers.authorization;
-        if (!authorizationHeader) {
-            return res.status(401).json({ status: false, message: 'Authorization header missing' });
-        }
+        const { patientId } = req.params; // Extract patientId from request URL
         
-        const token = authorizationHeader.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'secret');
-        const patientId = decodedToken.id;
-
         // Fetch the patient profile using the patientId
         const profile = await patientProfileService.getPatientProfileByPatientId(patientId);
 
@@ -57,7 +49,8 @@ exports.getPatientProfile = async (req, res) => {
     }
 };
 
-// Update patient's profile
+
+
 // Update patient's profile
 exports.updatePatientProfile = async (req, res) => {
     try {
