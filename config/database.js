@@ -10,8 +10,10 @@ const sequelize = new Sequelize("railway", "postgres", "Ece51FF6c3aeF--465ACDFf6
 // Synchronize models with the database
 sequelize
   .sync()
-  .then(() => {
+  .then(async () => {
     console.log("Models synchronized with database");
+    const { seedDatabase } = require("./seed");
+    await seedDatabase();
   })
   .catch((err) => {
     console.error("Error synchronizing models:", err);

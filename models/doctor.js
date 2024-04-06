@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
+const bcrypt = require("bcrypt");
 
 const Doctor = sequelize.define(
   "doctor",
@@ -45,8 +46,16 @@ const Doctor = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    pic: {
-      type: DataTypes.BLOB,
+    bio: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    document: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    profilePicture: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },
@@ -57,16 +66,25 @@ const Doctor = sequelize.define(
   }
 );
 
-// Doctor.beforeCreate(validatePhone);
+Doctor.beforeCreate(validatePhoneAndHashPassword);
+Doctor.beforeBulkCreate((doctors) => {
+  doctors.forEach(validatePhoneAndHashPassword);
+});
 // Doctor.beforeUpdate(validatePhone); needed to comment this for the reset password to work.
 
-// function validatePhone(doctor) {
-//   if (doctor.phone) {
-//     const phoneRegex = /^(06|05|07)\d{8}$/;
-//     if (!phoneRegex.test(doctor.phone.toString())) {
-//       throw new Error("Phone number must start with 06, 05 or 07 and be 10 digits long.");
-//     }
-//   }
-// }
+function validatePhoneAndHashPassword(doctor) {
+  if (doctor.phone) {
+    const phoneRegex = /^(06|05|07)\d{8}$/;
+    if (!phoneRegex.test(doctor.phone.toString())) {
+      throw new Error("Phone number must start with 06, 05 or 07 and be 10 digits long.");
+    }
+  }
+  if (doctor.password) {
+    // Hash the password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(doctor.password, salt);
+    doctor.password = hashedPassword;
+  }
+}
 
 module.exports = Doctor;

@@ -20,12 +20,8 @@ exports.createDoctor = async (req, res) => {
       return res.status(400).json({ status: false, message: `The email ${email} is already registered` });
     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Create new doctor with hashed password
-    const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hashedPassword, role, speciality, address });
+    const doctor = await Doctor.create({ first_name, last_name, email, phone, password, role, speciality, address });
     res.json({ status: true, message: "Doctor registered successfully", id: doctor.id });
   } catch (error) {
     console.error("Error creating doctor:", error);

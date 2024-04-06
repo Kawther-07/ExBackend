@@ -15,12 +15,8 @@ exports.createAdmin = async (req, res) => {
       return res.status(400).json({ status: false, message: `The email ${email} is already registered` });
     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Create new admin with hashed password
-    const admin = await Admin.create({ first_name, last_name, email, phone, password: hashedPassword, role });
+    const admin = await Admin.create({ first_name, last_name, email, phone, password, role });
     res.json({ status: true, message: "Admin registered successfully", id: admin.id });
   } catch (error) {
     console.error("Error creating admin:", error);

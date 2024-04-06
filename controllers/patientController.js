@@ -16,12 +16,8 @@ exports.createPatient = async (req, res) => {
       return res.status(400).json({ status: false, message: `The email ${email} is already registered` });
     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Create new patient with hashed password
-    const patient = await Patient.create({ first_name, last_name, email, phone, password: hashedPassword });
+    const patient = await Patient.create({ first_name, last_name, email, phone, password });
     res.json({ status: true, message: "Patient registered successfully", id: patient.id });
   } catch (error) {
     console.error("Error creating patient:", error);
@@ -161,8 +157,8 @@ exports.getPatientNameById = async (req, res) => {
 
 exports.getPatients = async (req, res) => {
   try {
-    const { doctorId } = req.query;
-    if (doctorId) {
+    const user = req.user;
+    if (user.role === "doctor") {
       // Retrieve PatientPersonalProfiles with MedicalRecords for the specified doctorId
       const patientProfiles = await PatientPersonalProfile.findAll({
         include: [
@@ -172,23 +168,48 @@ exports.getPatients = async (req, res) => {
             include: [
               {
                 model: MedicalRecord,
-                where: { doctorId: doctorId }, // Filter by doctorId
+                where: { doctorId: user.doctor.id }, // Filter by doctorId
                 required: true,
               },
             ],
           },
         ],
       });
-      res.json({ status: true, patientProfiles });
+      res.json({ status: true, data: patientProfiles });
     } else {
       // Get All patient personal profiles for Admin Dashboard (if no doctorId is specified)
       const patientProfiles = await PatientPersonalProfile.findAll({
         include: [Patient],
       });
-      res.json({ status: true, patientProfiles });
+      res.json({ status: true, data: patientProfiles });
     }
   } catch (error) {
     console.error("Error fetching patient profiles:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getPatientById = async (req, res) => {
+  // Get patient profile and inside medical records
+  try {
+    const { patientId } = req.params;
+    const patient = await PatientPersonalProfile.findOne({
+      where: { patientId },
+      include: {
+        model: Patient,
+        required: true,
+        include: {
+          model: MedicalRecord,
+          include: Doctor,
+        },
+      },
+    });
+    if (!patient) {
+      return res.status(404).json({ status: false, message: "Patient not found" });
+    }
+    res.json({ status: true, data: patient });
+  } catch (error) {
+    console.error("Error fetching patient profile:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
