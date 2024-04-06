@@ -33,16 +33,8 @@ exports.createPatientProfile = async (req, res) => {
 // Get patient's profile by patientId
 exports.getPatientProfile = async (req, res) => {
     try {
-        // Extract the patient's ID from the token if it exists
-        const authorizationHeader = req.headers.authorization;
-        if (!authorizationHeader) {
-            return res.status(401).json({ status: false, message: 'Authorization header missing' });
-        }
+        const { patientId } = req.params; // Extract patientId from request URL
         
-        const token = authorizationHeader.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'secret');
-        const patientId = decodedToken.id;
-
         // Fetch the patient profile using the patientId
         const profile = await patientProfileService.getPatientProfileByPatientId(patientId);
 
@@ -57,6 +49,8 @@ exports.getPatientProfile = async (req, res) => {
     }
 };
 
+
+
 // Update patient's profile
 exports.updatePatientProfile = async (req, res) => {
     try {
@@ -69,11 +63,19 @@ exports.updatePatientProfile = async (req, res) => {
             return res.status(404).json({ error: 'Latest profile not found' });
         }
 
-        // Update profile data
-        latestProfile.gender = gender;
-        latestProfile.height = height;
-        latestProfile.weight = weight;
-        latestProfile.birth_date = birth_date;
+        // Only update fields if they are provided in the request body and not undefined
+        if (gender !== undefined) {
+            latestProfile.gender = gender;
+        }
+        if (height !== undefined) {
+            latestProfile.height = height;
+        }
+        if (weight !== undefined) {
+            latestProfile.weight = weight;
+        }
+        if (birth_date !== undefined && birth_date !== null) { // Ensure birth_date is not undefined or null
+            latestProfile.birth_date = birth_date;
+        }
 
         // Save the updated profile
         await latestProfile.save();
@@ -84,3 +86,5 @@ exports.updatePatientProfile = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+
