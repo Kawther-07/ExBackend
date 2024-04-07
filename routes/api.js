@@ -8,7 +8,8 @@ const forgotPasswordController = require("../controllers/forgotPasswordControlle
 const glycemiaController = require("../controllers/glycemiaController");
 const authController = require("../controllers/authController");
 const Authorize = require("../middlewares/middlewares");
-
+const uploadController = require("../controllers/uploadController");
+const upload = require("../services/upload.service");
 const router = express.Router();
 
 // Admin
@@ -22,7 +23,8 @@ router.post("/doctor/register", doctorController.createDoctor);
 router.post("/doctor/login", doctorController.loginDoctor);
 router.post("/doctor/logout", doctorController.logoutDoctor);
 router.get("/doctor/profile", doctorController.getDoctorProfile);
-
+router.get("/doctors", Authorize(["admin"]), doctorController.getDoctors);
+router.get("/doctor/:doctorId", Authorize(["admin"]), doctorController.getDoctorById);
 
 // Doctor And Admin Login
 router.post("/auth/login", authController.loginAdminAndDoctor);
@@ -63,5 +65,8 @@ router.post("/glycemia", glycemiaController.createGlycemiaRecord);
 
 // Route to get glycemia records by patient ID
 router.get("/glycemia/:patientId", glycemiaController.getGlycemiaRecordsByPatientId);
+
+// Files Upload
+router.post("/upload", upload.array("files", 5), uploadController.uploadFiles);
 
 module.exports = router;

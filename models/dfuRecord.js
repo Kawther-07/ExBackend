@@ -20,11 +20,11 @@ const DfuRecord = sequelize.define(
     },
     view: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     description: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     image: {
       type: DataTypes.BLOB,
