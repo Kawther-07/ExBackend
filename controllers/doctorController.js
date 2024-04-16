@@ -7,12 +7,7 @@ const DoctorServices = require("../services/doctor.service");
 // Create doctor
 exports.createDoctor = async (req, res) => {
   try {
-    const { first_name, last_name, email, phone, password, role, speciality, address } = req.body;
-
-    const isPhoneValid = DoctorServices.validatePhone(phone);
-    if (!isPhoneValid.status) {
-      return res.status(400).json({ ...isPhoneValid });
-    }
+    const { first_name, last_name, email, phone, password, role, speciality, address, bio, profilePicture, document } = req.body;
 
     // Check if doctor with the same email already exists
     const existingDoctor = await Doctor.findOne({ where: { email } });
@@ -21,7 +16,19 @@ exports.createDoctor = async (req, res) => {
     }
 
     // Create new doctor with hashed password
-    const doctor = await Doctor.create({ first_name, last_name, email, phone, password, role, speciality, address });
+    const doctor = await Doctor.create({
+      first_name,
+      last_name,
+      email,
+      phone,
+      password,
+      role,
+      speciality,
+      address,
+      profilePicture,
+      document,
+      bio: bio || "",
+    });
     res.json({ status: true, message: "Doctor registered successfully", id: doctor.id });
   } catch (error) {
     console.error("Error creating doctor:", error);
@@ -95,6 +102,33 @@ exports.getDoctorProfile = async (req, res) => {
     res.status(200).json({ status: true, doctor: doctorWithoutPassword });
   } catch (error) {
     console.error("Error fetching doctor profile:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.findAll({ attributes: { exclude: ["password"] } });
+    res.json({ status: true, data: doctors });
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getDoctorById = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const doctor = await Doctor.findOne({
+      where: { id: doctorId },
+      attributes: { exclude: ["password"] },
+    });
+    if (!doctor) {
+      return res.status(404).json({ status: false, message: "Doctor not found" });
+    }
+    res.json({ status: true, data: doctor });
+  } catch (error) {
+    console.error("Error fetching doctor:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };

@@ -10,7 +10,7 @@ exports.createPatient = async (req, res) => {
   try {
     const { first_name, last_name, email, phone, password } = req.body;
 
-    // Check if patient with the same email already exists
+    // Check if v with the same email already exists
     const existingPatient = await Patient.findOne({ where: { email } });
     if (existingPatient) {
       return res.status(400).json({ status: false, message: `The email ${email} is already registered` });
@@ -78,28 +78,18 @@ exports.logoutPatient = async (req, res) => {
 exports.getPatientProfile = async (req, res) => {
   try {
     const { patientId } = req.params;
-    console.log("Received patient ID:", patientId);
-
-    // Retrieve patient profile data based on patient ID
+    // Retrieve patient profile data
     const profileData = await PatientServices.getPatientProfile(patientId);
-    console.log("Retrieved profile data:", profileData);
-
-    if (!profileData) {
-      return res.status(404).json({ status: false, message: "Profile data not found" });
-    }
-
     // Retrieve patient's email by patientId
     const userEmail = await PatientServices.getUserEmailById(patientId);
     // Combine profile data with email address
     const patientProfile = { ...profileData, email: userEmail };
-
     res.json({ status: true, profile: patientProfile });
   } catch (error) {
     console.error("Error fetching patient profile:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
-
 
 exports.getPatientNameById = async (req, res) => {
   try {

@@ -28,7 +28,7 @@ const Admin = sequelize.define(
     },
     phone: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     password: {
       type: DataTypes.STRING,

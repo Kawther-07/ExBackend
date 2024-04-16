@@ -51,27 +51,36 @@ class PatientServices {
 
   static async resetPatientPassword(email, newPassword) {
     try {
-        // Find the patient by email
-        const patient = await Patient.findOne({ where: { email } });
+      // Find the patient by email
+      const patient = await Patient.findOne({ where: { email } });
 
-        // If patient not found, throw an error
-        if (!patient) {
-            throw new Error("Patient not found");
-        }
+      // If patient not found, throw an error
+      if (!patient) {
+        throw new Error("Patient not found");
+      }
 
-        // Update patient's password with the new password
-        patient.password = newPassword;
+      // Temporarily remove the phone number from the patient object
+      const { phone, id } = patient; // Store patient's ID
+      delete patient.phone;
 
-        // Save the changes
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update patient's password without triggering phone number validation
+      await patient.update({ password: hashedPassword });
+
+      // Restore the phone number
+      if (phone) {
+        patient.phone = phone;
         await patient.save();
+      }
 
-        // Return true indicating success
-        return true;
+      // Return patient's ID along with the email
+      return { id, email }; // Return an object with patient's ID and email
     } catch (error) {
-        throw error; // Propagate error to caller
+      throw error;
     }
-}
-
+  }
 }
 
 module.exports = PatientServices;

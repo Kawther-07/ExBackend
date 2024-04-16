@@ -64,30 +64,26 @@ async function verifyCode(req, res) {
     }
 }
 
+
+
+
 async function resetPassword(req, res) {
     const { email, newPassword } = req.body;
 
     try {
         // Hash the new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
         // Call the resetPatientPassword method from the PatientServices class
         const result = await PatientServices.resetPatientPassword(email, hashedPassword);
 
-        // If the reset is successful, retrieve the patient's ID by email
-        const patient = await PatientServices.getPatientByEmail(email);
-        if (!patient) {
-            throw new Error("Patient not found after resetting password");
-        }
-
-        // Send response with patient's ID and success message
-        res.status(200).json({ success: true, message: "Password reset successful", id: patient.id });
+        // Send response with patient's ID and email
+        res.status(200).json(result); // Send patient's ID and email in the response
     } catch (error) {
         console.error('Error resetting password:', error);
-        res.status(500).json({ success: false, message: "Error resetting password. Please try again later." });
+        res.status(500).send('Error resetting password. Please try again later.');
     }
 }
-
 
 module.exports = {
     forgotPassword,

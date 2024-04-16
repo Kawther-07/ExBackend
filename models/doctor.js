@@ -28,7 +28,7 @@ const Doctor = sequelize.define(
     },
     phone: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     password: {
       type: DataTypes.STRING,
@@ -52,12 +52,16 @@ const Doctor = sequelize.define(
     },
     document: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     profilePicture: {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    isDisabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    }
   },
   {
     timestamps: true,
