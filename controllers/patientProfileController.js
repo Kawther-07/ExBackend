@@ -1,85 +1,86 @@
-const jwt = require("jsonwebtoken");
-const moment = require("moment");
-const patientProfileService = require("../services/patientProfileService");
+const jwt = require('jsonwebtoken');
+const moment = require('moment');
+const patientProfileService = require('../services/patientProfileService');
 
 // Create patient's profile
 exports.createPatientProfile = async (req, res) => {
-  try {
-    // Extract necessary information from the request body
-    const { patientId, gender, height, weight, birth_date } = req.body;
+    try {
+        // Extract necessary information from the request body
+        const { patientId, gender, height, weight, birth_date } = req.body;
 
-    // Parse the birth date using moment.js, allowing for various date formats
-    const formattedBirthDate = moment(birth_date).toDate();
+        // Parse the birth date using moment.js, allowing for various date formats
+        const formattedBirthDate = moment(birth_date).toDate();
 
-    // Create the patient profile using the service function
-    const profileData = {
-      patientId,
-      gender,
-      height,
-      weight,
-      birth_date: formattedBirthDate,
-    };
-    const profile = await patientProfileService.createPatientProfile(profileData);
+        // Create the patient profile using the service function
+        const profileData = {
+            patientId,
+            gender,
+            height,
+            weight,
+            birth_date: formattedBirthDate
+            
+        };
+        const profile = await patientProfileService.createPatientProfile(profileData);
 
-    // Return the created profile as JSON response
-    res.status(201).json(profile);
-  } catch (error) {
-    console.error("Error creating patient profile:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+        // Return the created profile as JSON response
+        res.status(201).json(profile);
+    } catch (error) {
+        console.error('Error creating patient profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 };
 
 // Get patient's profile by patientId
 exports.getPatientProfile = async (req, res) => {
-  try {
-    // Extract the patient's ID from the token if it exists
-    const authorizationHeader = req.headers.authorization;
-    if (!authorizationHeader) {
-      return res.status(401).json({ status: false, message: "Authorization header missing" });
+    try {
+        // Extract the patient's ID from the token if it exists
+        const authorizationHeader = req.headers.authorization;
+        if (!authorizationHeader) {
+            return res.status(401).json({ status: false, message: 'Authorization header missing' });
+        }
+        
+        const token = authorizationHeader.split(' ')[1];
+        const decodedToken = jwt.verify(token, 'secret');
+        const patientId = decodedToken.id;
+
+        // Fetch the patient profile using the patientId
+        const profile = await patientProfileService.getPatientProfileByPatientId(patientId);
+
+        if (!profile) {
+            return res.status(404).json({ status: false, message: 'Patient profile not found' });
+        }
+
+        res.status(200).json({ status: true, profile });
+    } catch (error) {
+        console.error('Error fetching patient profile:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
-
-    const token = authorizationHeader.split(" ")[1];
-    const decodedToken = jwt.verify(token, "secret");
-    const patientId = decodedToken.id;
-
-    // Fetch the patient profile using the patientId
-    const profile = await patientProfileService.getPatientProfileByPatientId(patientId);
-
-    if (!profile) {
-      return res.status(404).json({ status: false, message: "Patient profile not found" });
-    }
-
-    res.status(200).json({ status: true, profile });
-  } catch (error) {
-    console.error("Error fetching patient profile:", error);
-    res.status(500).json({ status: false, message: "Internal server error" });
-  }
 };
 
 // Update patient's profile
 exports.updatePatientProfile = async (req, res) => {
-  try {
-    const { gender, height, weight, birth_date } = req.body;
-    const patientId = req.params.patientId;
+    try {
+        const { gender, height, weight, birth_date } = req.body;
+        const patientId = req.params.patientId;
 
-    const latestProfile = await patientProfileService.findLatestProfile(patientId);
+        const latestProfile = await patientProfileService.findLatestProfile(patientId);
 
-    if (!latestProfile) {
-      return res.status(404).json({ error: "Latest profile not found" });
+        if (!latestProfile) {
+            return res.status(404).json({ error: 'Latest profile not found' });
+        }
+
+        // Update profile data
+        latestProfile.gender = gender;
+        latestProfile.height = height;
+        latestProfile.weight = weight;
+        latestProfile.birth_date = birth_date;
+
+        // Save the updated profile
+        await latestProfile.save();
+
+        res.status(200).json({ status: true, message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error('Error updating patient profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-
-    // Update profile data
-    latestProfile.gender = gender;
-    latestProfile.height = height;
-    latestProfile.weight = weight;
-    latestProfile.birth_date = birth_date;
-
-    // Save the updated profile
-    await latestProfile.save();
-
-    res.status(200).json({ status: true, message: "Profile updated successfully" });
-  } catch (error) {
-    console.error("Error updating patient profile:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
 };

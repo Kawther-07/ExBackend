@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const AdminServices = require("../services/admin.service");
+const AuthServices = require("../services/auth.service");
 
 // Create admin
 exports.createAdmin = async (req, res) => {
@@ -45,9 +46,10 @@ exports.loginAdmin = async (req, res) => {
       return res.status(401).json({ status: false, message: "Invalid administrator name or password" });
     }
 
+    admin = admin.toJSON();
     // Generate JWT token
-    const tokenData = { id: admin.id, email: admin.email }; // Customize token payload as needed
-    const token = await AdminServices.generateAccessToken(tokenData, "secret", "24h");
+    const tokenData = { admin }; // Customize token payload as needed
+    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, name: admin.first_name });
   } catch (error) {

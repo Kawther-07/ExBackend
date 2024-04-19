@@ -34,16 +34,12 @@ class AdminServices {
     }
   }
 
-  static async generateAccessToken(tokenData, JWTSecret_Key, JWT_EXPIRE) {
-    return jwt.sign(tokenData, JWTSecret_Key, { expiresIn: JWT_EXPIRE });
-  }
-
   static async checkAdminAndDoctor(email) {
     try {
       const doctor = await Doctor.findOne({ where: { email } });
-      if(!doctor) {
+      if (!doctor) {
         const admin = await Admin.findOne({ where: { email } });
-        if (!admin) { 
+        if (!admin) {
           return null;
         }
         return admin;

@@ -25,6 +25,7 @@ router.post("/doctor/logout", doctorController.logoutDoctor);
 router.get("/doctor/profile", doctorController.getDoctorProfile);
 router.get("/doctors", Authorize(["admin"]), doctorController.getDoctors);
 router.get("/doctor/:doctorId", Authorize(["admin"]), doctorController.getDoctorById);
+router.put("/doctor/:doctorId", Authorize(["admin", "doctor"]), doctorController.updateDoctorProfile);
 
 // Doctor And Admin Login
 router.post("/auth/login", authController.loginAdminAndDoctor);
@@ -36,6 +37,7 @@ router.post("/patient/login", patientController.loginPatient);
 router.post("/patient/logout", patientController.logoutPatient);
 router.get("/patients", Authorize(["admin", "doctor"]), patientController.getPatients);
 router.get("/patient/:patientId", Authorize(["admin", "doctor"]), patientController.getPatientById);
+router.post("/patients/:patientId/archive", patientController.archivePatient);
 
 // Get patient name by patient ID
 router.get("/patient/name/:patientId", patientController.getPatientNameById);
@@ -67,6 +69,6 @@ router.post("/glycemia", glycemiaController.createGlycemiaRecord);
 router.get("/glycemia/:patientId", glycemiaController.getGlycemiaRecordsByPatientId);
 
 // Files Upload
-router.post("/upload", upload.array("files", 5), uploadController.uploadFiles);
+router.post("/upload", upload().array("files", 5), uploadController.uploadFiles);
 
 module.exports = router;

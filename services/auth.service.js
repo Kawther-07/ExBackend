@@ -5,6 +5,16 @@ const Doctor = require("../models/doctor");
 
 class AuthServices {
   static async generateAccessToken(tokenData, JWTSecret_Key, JWT_EXPIRE) {
+    if (tokenData?.password) {
+      delete tokenData.password;
+    }
+    if (tokenData?.admin?.password) {
+      delete tokenData.admin.password;
+    }
+    if (tokenData?.doctor?.password) {
+      delete tokenData.doctor.password;
+    }
+    console.log("tokenData: ", tokenData);
     return jwt.sign(tokenData, JWTSecret_Key, { expiresIn: JWT_EXPIRE });
   }
 

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const DoctorServices = require("../services/doctor.service");
+const AuthServices = require("../services/auth.service");
 
 // Create doctor
 exports.createDoctor = async (req, res) => {
@@ -58,8 +59,9 @@ exports.loginDoctor = async (req, res) => {
     }
 
     // Generate JWT token
-    const tokenData = { id: doctor.id, email: doctor.email };
-    const token = await DoctorServices.generateAccessToken(tokenData, "secret", "24h");
+    doctor = doctor.toJSON();
+    const tokenData = { doctor };
+    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, doctor });
   } catch (error) {
@@ -108,7 +110,10 @@ exports.getDoctorProfile = async (req, res) => {
 
 exports.getDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.findAll({ attributes: { exclude: ["password"] } });
+    const doctors = await Doctor.findAll({
+      attributes: { exclude: ["password"] },
+      order: [["createdAt", "DESC"]],
+    });
     res.json({ status: true, data: doctors });
   } catch (error) {
     console.error("Error fetching doctors:", error);
@@ -129,6 +134,46 @@ exports.getDoctorById = async (req, res) => {
     res.json({ status: true, data: doctor });
   } catch (error) {
     console.error("Error fetching doctor:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.updateDoctorProfile = async (req, res) => {
+  // Update only the fields that were passed in the request body.
+  try {
+    const user = req.user;
+    if (user.role === "doctor") {
+      const doctor = await Doctor.findOne({ where: { id: user.doctor.id } });
+      if (!doctor) {
+        return res.status(404).json({ status: false, message: "Doctor not found" });
+      }
+      // Get req.body without createdAt and updatedAt fields
+      const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
+      const updatedDoctor = await doctor.update(body);
+
+      // Generate new JWT token with new data
+      const tokenData = {
+        id: user.doctor.id,
+        email: user.doctor.email,
+        role: user.doctor.role,
+        doctor: updatedDoctor.toJSON(),
+      };
+      const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+
+      res.status(200).json({ status: true, message: "Doctor profile updated successfully", token });
+    } else {
+      const { doctorId } = req.params;
+      const doctor = await Doctor.findOne({ where: { id: doctorId } });
+      if (!doctor) {
+        return res.status(404).json({ status: false, message: "Doctor not found" });
+      }
+      const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
+      const updatedDoctor = await doctor.update(req.body);
+
+      res.status(200).json({ status: true, message: "Doctor profile updated successfully", doctor: updatedDoctor });
+    }
+  } catch (error) {
+    console.error("Error updating doctor profile:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };

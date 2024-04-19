@@ -17,6 +17,9 @@ exports.loginAdminAndDoctor = async (req, res) => {
     if (!user) {
       return res.status(404).json({ status: false, message: "User does not exist" });
     }
+    if (user.role === "doctor" && user.isDisabled) {
+      return res.status(401).json({ status: false, message: "Your account is disabled until it's enabled by an Admin" });
+    }
 
     // Compare passwords
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -29,7 +32,7 @@ exports.loginAdminAndDoctor = async (req, res) => {
       id: user.id,
       email: user.email,
       role: user.role,
-      ...(user.role === "admin" ? { admin: user } : { doctor: user }),
+      ...(user.role === "admin" ? { admin: user.toJSON() } : { doctor: user.toJSON() }),
     };
     const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
 

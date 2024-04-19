@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const PatientServices = require("../services/patient.service");
+const AuthServices = require("../services/auth.service");
 // const MedicalRecordService = require('../services/medicalRecordService');
 
 // Create patient
@@ -47,8 +48,9 @@ exports.loginPatient = async (req, res, next) => {
     }
 
     // Generate JWT token
-    const tokenData = { id: patient.id, email: patient.email };
-    const token = await PatientServices.generateAccessToken(tokenData, "secret", "24h");
+    patient = patient.toJSON();
+    const tokenData = { patient };
+    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, name: patient.first_name });
   } catch (error) {
@@ -211,5 +213,23 @@ exports.getPatientById = async (req, res) => {
   } catch (error) {
     console.error("Error fetching patient profile:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+// Fonction pour archiver un patient
+exports.archivePatient = async (req, res) => {
+  const { patientId } = req.params;
+  try {
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient non trouvé." });
+    }
+
+    await patient.update({ isArchived: true });
+
+    res.status(200).json({ message: "Le patient a été archivé avec succès." });
+  } catch (error) {
+    console.error("Erreur lors de l'archivage du patient:", error);
+    res.status(500).json({ message: "Erreur lors de l'archivage du patient." });
   }
 };
