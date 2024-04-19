@@ -17,6 +17,7 @@ router.post("/admin/register", adminController.createAdmin);
 router.post("/admin/login", adminController.loginAdmin);
 router.post("/admin/logout", adminController.logoutAdmin);
 router.get("/admin/profile", adminController.getAdminProfile);
+// router.put("/admin/:adminId", Authorize(["admin"]), adminController.updateAdminProfile);
 
 // Doctor
 router.post("/doctor/register", doctorController.createDoctor);
