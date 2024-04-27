@@ -81,19 +81,6 @@ class PatientServices {
       throw error;
     }
   }
-  static async archivePatient(patientId) {
-    try {
-      // Mise à jour du patient pour le marquer comme archivé
-      const updated = await Patient.update({ isArchived: true }, { where: { id: patientId } });
-      if (updated) {
-        return { message: 'Le patient a été archivé avec succès.' };
-      } else {
-        throw new Error('Patient non trouvé.');
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
 }
 
 module.exports = PatientServices;

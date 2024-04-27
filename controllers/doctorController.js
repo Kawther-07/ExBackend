@@ -139,41 +139,46 @@ exports.getDoctorById = async (req, res) => {
 };
 
 exports.updateDoctorProfile = async (req, res) => {
-  // Update only the fields that were passed in the request body.
   try {
     const user = req.user;
-    if (user.role === "doctor") {
-      const doctor = await Doctor.findOne({ where: { id: user.doctor.id } });
+    const { doctorId } = req.params;
+    
+    // Check if the user is a doctor or an admin
+    if (user.role === "doctor" || user.role === "admin") {
+      let doctor;
+      if (user.role === "doctor") {
+        // For doctors, update their own profile
+        doctor = await Doctor.findOne({ where: { id: user.doctor.id } });
+      } else {
+        // For admins, update the profile of the specified doctor
+        doctor = await Doctor.findOne({ where: { id: doctorId } });
+      }
+
       if (!doctor) {
         return res.status(404).json({ status: false, message: "Doctor not found" });
       }
+
       // Get req.body without createdAt and updatedAt fields
       const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
       const updatedDoctor = await doctor.update(body);
 
       // Generate new JWT token with new data
       const tokenData = {
-        id: user.doctor.id,
-        email: user.doctor.email,
-        role: user.doctor.role,
+        id: doctor.id,
+        email: doctor.email,
+        role: user.role, // Use the role of the user who is updating the profile
         doctor: updatedDoctor.toJSON(),
       };
       const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
 
       res.status(200).json({ status: true, message: "Doctor profile updated successfully", token });
     } else {
-      const { doctorId } = req.params;
-      const doctor = await Doctor.findOne({ where: { id: doctorId } });
-      if (!doctor) {
-        return res.status(404).json({ status: false, message: "Doctor not found" });
-      }
-      const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
-      const updatedDoctor = await doctor.update(req.body);
-
-      res.status(200).json({ status: true, message: "Doctor profile updated successfully", doctor: updatedDoctor });
+      // If user is neither doctor nor admin, return unauthorized
+      return res.status(403).json({ status: false, message: "Unauthorized" });
     }
   } catch (error) {
     console.error("Error updating doctor profile:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
+

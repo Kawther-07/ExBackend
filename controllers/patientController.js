@@ -215,21 +215,18 @@ exports.getPatientById = async (req, res) => {
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
+// Archive patient
 
-// Fonction pour archiver un patient
-exports.archivePatient = async (req, res) => {
-  const { patientId } = req.params;
-  try {
-    const patient = await Patient.findByPk(patientId);
-    if (!patient) {
-      return res.status(404).json({ message: "Patient non trouvé." });
-    }
+// exports.archivePatient = async (req, res) => {
+//   try {
+//     const { patientId } = req.params;
 
-    await patient.update({ isArchived: true });
+//     // Appeler la méthode du modèle pour archiver le patient
+//     const archivedPatient = await Patient.archivePatient(patientId);
 
-    res.status(200).json({ message: "Le patient a été archivé avec succès." });
-  } catch (error) {
-    console.error("Erreur lors de l'archivage du patient:", error);
-    res.status(500).json({ message: "Erreur lors de l'archivage du patient." });
-  }
-};
+//     res.json({ status: true, message: "Patient archived successfully", data: archivedPatient });
+//   } catch (error) {
+//     console.error("Error archiving patient:", error);
+//     res.status(500).json({ status: false, message: "Internal server error" });
+//   }
+// };

@@ -17,7 +17,7 @@ router.post("/admin/register", adminController.createAdmin);
 router.post("/admin/login", adminController.loginAdmin);
 router.post("/admin/logout", adminController.logoutAdmin);
 router.get("/admin/profile", adminController.getAdminProfile);
-// router.put("/admin/:adminId", Authorize(["admin"]), adminController.updateAdminProfile);
+router.put("/admin/:adminId", Authorize(["admin", "doctor"]), adminController.updateAdminProfile);
 
 // Doctor
 router.post("/doctor/register", doctorController.createDoctor);
@@ -38,7 +38,7 @@ router.post("/patient/login", patientController.loginPatient);
 router.post("/patient/logout", patientController.logoutPatient);
 router.get("/patients", Authorize(["admin", "doctor"]), patientController.getPatients);
 router.get("/patient/:patientId", Authorize(["admin", "doctor"]), patientController.getPatientById);
-router.post("/patients/:patientId/archive", patientController.archivePatient);
+//router.put('/patients/:patientId/archive', patientController.archivePatient);
 
 // Get patient name by patient ID
 router.get("/patient/name/:patientId", patientController.getPatientNameById);

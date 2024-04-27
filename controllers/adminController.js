@@ -98,43 +98,37 @@ exports.getAdminProfile = async (req, res) => {
   }
 };
 
+// Update admin profile
 exports.updateAdminProfile = async (req, res) => {
   try {
-    const user = req.user;
-    if (user.role === "admin") {
-      const admin = await Admin.findOne({ where: { id: user.admin.id } });
-      if (!admin) {
-        return res.status(404).json({ status: false, message: "Admin not found" });
-      }
-      // Filtrer les champs createdAt et updatedAt du corps de la requête
-      const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
-      const updatedAdmin = await admin.update(body);
-
-      // Générer un nouveau token JWT avec les nouvelles données
-      const tokenData = {
-        id: user.admin.id,
-        email: user.admin.email,
-        role: user.admin.role,
-        admin: updatedAdmin.toJSON(),
-      };
-      const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
-
-      res.status(200).json({ status: true, message: "Admin profile updated successfully", token });
-    } else {
-      // Gérer la mise à jour du profil de l'administrateur par un autre administrateur
-      const { adminId } = req.params;
-      const admin = await Admin.findOne({ where: { id: adminId } });
-      if (!admin) {
-        return res.status(404).json({ status: false, message: "Admin not found" });
-      }
-      const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
-      const updatedAdmin = await admin.update(req.body);
-
-      res.status(200).json({ status: true, message: "Admin profile updated successfully", admin: updatedAdmin });
+    const user = req.user; // Assuming you have authentication middleware that sets the user object
+    if (user.role !== "admin") {
+      return res.status(403).json({ status: false, message: "Unauthorized access" });
     }
+
+    const { adminId } = req.params; // Assuming you have adminId as a parameter in your route
+
+    const admin = await Admin.findOne({ where: { id: adminId } });
+    if (!admin) {
+      return res.status(404).json({ status: false, message: "Admin not found" });
+    }
+
+    // Update only the fields that were passed in the request body.
+    const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
+    await admin.update(body);
+
+    // Optionally, generate a new JWT token with updated data
+    const tokenData = {
+      id: admin.id,
+      email: admin.email,
+      role: admin.role,
+      // Add any additional data you want to include in the token
+    };
+    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+
+    res.status(200).json({ status: true, message: "Admin profile updated successfully", token });
   } catch (error) {
     console.error("Error updating admin profile:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
-
