@@ -7,7 +7,7 @@ const DoctorServices = require("../services/doctor.service");
 // Create doctor
 exports.createDoctor = async (req, res) => {
   try {
-    const { first_name, last_name, email, phone, password, role, speciality, address } = req.body;
+    const { first_name, last_name, email, phone, password, role, specialty, address } = req.body;
 
     const isPhoneValid = DoctorServices.validatePhone(phone);
     if (!isPhoneValid.status) {
@@ -25,7 +25,7 @@ exports.createDoctor = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new doctor with hashed password
-    const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hashedPassword, role, speciality, address });
+    const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hashedPassword, role, specialty, address });
     res.json({ status: true, message: "Doctor registered successfully", id: doctor.id });
   } catch (error) {
     console.error("Error creating doctor:", error);
@@ -99,6 +99,51 @@ exports.getDoctorProfile = async (req, res) => {
     res.status(200).json({ status: true, doctor: doctorWithoutPassword });
   } catch (error) {
     console.error("Error fetching doctor profile:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+
+// Function to fetch list of doctors
+exports.getDoctorList = async (req, res) => {
+  try {
+    // Fetch all doctors from the database
+    const doctors = await Doctor.findAll();
+
+    // Extract only the first and last names of doctors
+    const simplifiedDoctors = doctors.map(doctor => {
+      return {
+        first_name: doctor.first_name,
+        last_name: doctor.last_name
+      };
+    });
+
+    // Send the simplified list of doctors as a response
+    res.status(200).json({ status: true, doctors: simplifiedDoctors });
+  } catch (error) {
+    console.error("Error fetching doctor list:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+// Retrieve doctor ID by name
+exports.getDoctorIdByName = async (req, res) => {
+  try {
+    const { first_name, last_name } = req.query;
+
+    // Find the doctor by first name and last name
+    const doctor = await Doctor.findOne({
+      where: { first_name, last_name },
+      attributes: ['id']
+    });
+
+    if (!doctor) {
+      return res.status(404).json({ status: false, message: "Doctor not found" });
+    }
+
+    res.status(200).json({ status: true, doctor_id: doctor.id });
+  } catch (error) {
+    console.error("Error fetching doctor ID:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
