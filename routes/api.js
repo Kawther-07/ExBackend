@@ -34,6 +34,7 @@ router.get('/doctor/id', doctorController.getDoctorIdByName);
 router.post('/patient/register', patientController.createPatient);
 router.post('/patient/login', patientController.loginPatient);
 router.post('/patient/logout', patientController.logoutPatient);
+router.get('/patients', patientController.getPatients);
 
 // Patient personal profile
 router.get('/patient/name/:patientId', patientController.getPatientNameById);

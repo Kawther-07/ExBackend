@@ -1,4 +1,4 @@
-const Patient = require("../models/patient");
+const { Patient, Doctor, MedicalRecord, PatientPersonalProfile } = require("../models/associations"); // Adjust the path as necessary
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -172,3 +172,37 @@ exports.getPatientNameById = async (req, res) => {
 //         res.status(500).json({ status: false, message: 'Internal server error' });
 //     }
 // };
+
+exports.getPatients = async (req, res) => {
+  try {
+    const { doctorId } = req.query;
+    if (doctorId) {
+      // Retrieve PatientPersonalProfiles with MedicalRecords for the specified doctorId
+      const patientProfiles = await PatientPersonalProfile.findAll({
+        include: [
+          {
+            model: Patient,
+            required: true,
+            include: [
+              {
+                model: MedicalRecord,
+                where: { doctorId: doctorId }, // Filter by doctorId
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+      res.json({ status: true, patientProfiles });
+    } else {
+      // Get All patient personal profiles for Admin Dashboard (if no doctorId is specified)
+      const patientProfiles = await PatientPersonalProfile.findAll({
+        include: [Patient],
+      });
+      res.json({ status: true, patientProfiles });
+    }
+  } catch (error) {
+    console.error("Error fetching patient profiles:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
