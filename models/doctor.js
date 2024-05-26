@@ -37,7 +37,7 @@ const Doctor = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    speciality: {
+    specialty: {
       type: DataTypes.STRING,
       allowNull: false,
     },

@@ -3,12 +3,12 @@ const jwt = require("jsonwebtoken");
 const Doctor = require("../models/doctor");
 
 class DoctorServices {
-  static async registerDoctor(first_name, last_name, email, phone, password, role, speciality, address) {
+  static async registerDoctor(first_name, last_name, email, phone, password, role, specialty, address) {
     try {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(password, salt);
 
-      const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hash, role, speciality, address });
+      const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hash, role, specialty, address });
 
       return doctor;
     } catch (error) {
