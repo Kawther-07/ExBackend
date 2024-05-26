@@ -8,7 +8,7 @@ const PatientServices = require("../services/patient.service");
 // Create patient
 exports.createPatient = async (req, res) => {
   try {
-    const { first_name, last_name, email, phone, password } = req.body;
+    const { first_name, last_name, email, phone, password, selected_doctor } = req.body;
 
     // Check if patient with the same email already exists
     const existingPatient = await Patient.findOne({ where: { email } });
@@ -22,7 +22,11 @@ exports.createPatient = async (req, res) => {
 
     // Create new patient with hashed password
     const patient = await Patient.create({ first_name, last_name, email, phone, password: hashedPassword });
-    res.json({ status: true, message: "Patient registered successfully", id: patient.id });
+
+    // Assuming selected_doctor is the field where doctorId is coming from
+    const doctorId = selected_doctor || null;
+
+    res.json({ status: true, message: "Patient registered successfully", id: patient.id, doctorId });
   } catch (error) {
     console.error("Error creating patient:", error);
     res.status(500).json({ status: false, message: "Internal server error" });

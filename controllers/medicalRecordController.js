@@ -138,16 +138,13 @@ exports.createMedicalRecord = async (req, res) => {
 exports.getMedicalRecord = async (req, res) => {
     try {
         const { patientId } = req.params;
-        const medicalRecords = await MedicalRecord.findAll({
-            where: { patientId },
-            order: [['createdAt', 'DESC']]
-        });
+        const medicalRecord = await medicalRecordService.findLatestMedicalRecordByPatientId(patientId);
 
-        if (!medicalRecords || medicalRecords.length === 0) {
+        if (!medicalRecord) {
             return res.status(404).json({ status: false, message: 'Medical record not found' });
         }
 
-        res.status(200).json({ status: true, medicalRecord: medicalRecords[0] });
+        res.status(200).json({ status: true, medicalRecord });
     } catch (error) {
         console.error('Error fetching medical record:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });
@@ -156,36 +153,112 @@ exports.getMedicalRecord = async (req, res) => {
 
 // Update the `updateMedicalRecord` function to ensure correct updating
 // Update the `updateMedicalRecord` function to ensure correct updating
-exports.updateMedicalRecord = async (req, res) => {
+// exports.updateMedicalRecord = async (req, res) => {
+//     const { medicalRecordId } = req.params;
+//     const { patientId, doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup } = req.body;
+    
+//     try {
+//       // Find the medical record by ID
+//       let medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+    
+//       if (!medicalRecord) {
+//         return res.status(404).json({ error: 'Medical record not found' });
+//       }
+    
+//       // Update fields if provided
+//       if (patientId) medicalRecord.patientId = patientId;
+//       if (doctorId) medicalRecord.doctorId = doctorId;
+//       if (diabetesType) medicalRecord.diabetesType = diabetesType;
+//       if (hasDFU !== undefined) medicalRecord.hasDFU = hasDFU;
+//       if (isSmoker !== undefined) medicalRecord.isSmoker = isSmoker;
+//       if (hadDiabetes) medicalRecord.hadDiabetes = hadDiabetes;
+//       if (bloodGroup) medicalRecord.bloodGroup = bloodGroup;
+    
+//       // Save the updated record
+//       await medicalRecord.save();
+    
+//       res.status(200).json({ message: 'Medical record updated successfully', medicalRecord });
+//     } catch (error) {
+//       console.error('Error updating medical record:', error);
+//       res.status(500).json({ error: 'Internal server error' });
+//     }
+//   };
+
+
+// exports.updateMedicalRecord = async (req, res) => {
+//     try {
+//         const { medicalRecordId } = req.params;
+//         const { patientId, doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup } = req.body;
+
+//         const medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+
+//         if (!medicalRecord) {
+//             return res.status(404).json({ error: 'Medical record not found' });
+//         }
+
+//         // Update fields if they are provided in the request body and not undefined
+//         if (patientId !== undefined) {
+//             medicalRecord.patientId = patientId;
+//         }
+//         if (doctorId !== undefined) {
+//             medicalRecord.doctorId = doctorId;
+//         }
+//         if (diabetesType !== undefined) {
+//             medicalRecord.diabetesType = diabetesType;
+//         }
+//         if (hasDFU !== undefined) {
+//             medicalRecord.hasDFU = hasDFU;
+//         }
+//         if (isSmoker !== undefined) {
+//             medicalRecord.isSmoker = isSmoker;
+//         }
+//         if (hadDiabetes !== undefined && hadDiabetes !== null) {
+//             medicalRecord.hadDiabetes = hadDiabetes;
+//         }
+//         if (bloodGroup !== undefined) {
+//             medicalRecord.bloodGroup = bloodGroup;
+//         }
+
+//         // Save the updated medical record
+//         await medicalRecord.save();
+
+//         res.status(200).json({ message: 'Medical record updated successfully', medicalRecord });
+//     } catch (error) {
+//         console.error('Error updating medical record:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// };
+
+exports.updateMedicalRecordByPatientId = async (req, res) => {
+    const { patientId } = req.params;
+    const { doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup } = req.body;
+
+    console.log('Received update request for patientId:', patientId);
+    console.log('Request body:', req.body);
+
     try {
-        const { doctorId, diabetesType, hasDFU, isSmoker, hadDiabetes, bloodGroup } = req.body;
-        const { medicalRecordId } = req.params;
+        // Find the latest medical record by patientId
+        let medicalRecord = await medicalRecordService.findLatestMedicalRecordByPatientId(patientId);
 
-        // Validate medicalRecordId if necessary
-        if (!medicalRecordId || isNaN(medicalRecordId)) {
-            return res.status(400).json({ error: 'Invalid medicalRecordId' });
+        if (!medicalRecord) {
+            console.error('Medical record not found');
+            return res.status(404).json({ error: 'Medical record not found' });
         }
 
-        // Find the latest medical record for the patient
-        const latestMedicalRecord = await medicalRecordService.findLatestMedicalRecordByPatientId(medicalRecordId);
+        // Update fields if provided
+        if (doctorId !== undefined) medicalRecord.doctorId = doctorId;
+        if (diabetesType !== undefined) medicalRecord.diabetesType = diabetesType;
+        if (hasDFU !== undefined) medicalRecord.hasDFU = hasDFU;
+        if (isSmoker !== undefined) medicalRecord.isSmoker = isSmoker;
+        if (hadDiabetes !== undefined) medicalRecord.hadDiabetes = hadDiabetes;
+        if (bloodGroup !== undefined) medicalRecord.bloodGroup = bloodGroup;
 
-        if (!latestMedicalRecord || latestMedicalRecord.id != medicalRecordId) {
-            return res.status(404).json({ error: 'Medical record not found or not the latest' });
-        }
+        console.log('Updated medical record:', medicalRecord);
 
-        // Update the medical record attributes
-        latestMedicalRecord.doctorId = doctorId ? parseInt(doctorId) : latestMedicalRecord.doctorId;
-        latestMedicalRecord.diabetesType = diabetesType !== undefined ? diabetesType : latestMedicalRecord.diabetesType;
-        latestMedicalRecord.hasDFU = hasDFU !== undefined ? hasDFU : latestMedicalRecord.hasDFU;
-        latestMedicalRecord.isSmoker = isSmoker !== undefined ? isSmoker : latestMedicalRecord.isSmoker;
-        latestMedicalRecord.hadDiabetes = hadDiabetes !== undefined ? hadDiabetes : latestMedicalRecord.hadDiabetes;
-        latestMedicalRecord.bloodGroup = bloodGroup !== undefined ? bloodGroup : latestMedicalRecord.bloodGroup;
+        // Save the updated record
+        await medicalRecord.save();
 
-        // Save the updated medical record
-        await latestMedicalRecord.save();
-
-        // Respond with success message
-        res.status(200).json({ status: true, message: 'Medical record updated successfully' });
+        res.status(200).json({ message: 'Medical record updated successfully', medicalRecord });
     } catch (error) {
         console.error('Error updating medical record:', error);
         res.status(500).json({ error: 'Internal server error' });

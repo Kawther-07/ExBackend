@@ -48,8 +48,9 @@ router.get('/patient/profile/:patientId', patientProfileController.getPatientPro
 
 router.post('/medical-record', medicalRecordController.createMedicalRecord);
 router.get('/medical-record/:patientId', medicalRecordController.getMedicalRecord);
-router.patch('/medical-record/:patientId', medicalRecordController.updateMedicalRecord);
-router.patch('/medical-record/:medicalRecordId', medicalRecordController.updateMedicalRecord);
+//router.patch('/medical-record/:patientId', medicalRecordController.updateMedicalRecord);
+// router.patch('/medical-record/:medicalRecordId', medicalRecordController.updateMedicalRecord);
+router.patch('/medical-record/patient/:patientId', medicalRecordController.updateMedicalRecordByPatientId);
 
 
 // Forgot password

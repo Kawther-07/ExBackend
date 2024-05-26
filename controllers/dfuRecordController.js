@@ -59,22 +59,21 @@ exports.uploadImage = async (req, res) => {
     console.log('Request body:', req.body); // Log the request body
     console.log('Request file:', req.file); // Log the file object
 
-    const { medicalRecordId } = req.body; // Assuming medicalRecordId is sent in the request body
+    const { medicalRecordId, imageUrl } = req.body; // Assuming medicalRecordId and imageUrl are sent in the request body
     console.log('Medical Record ID:', medicalRecordId);
+    console.log('Image URL:', imageUrl);
 
-    if (!medicalRecordId || !req.file) {
-      console.log('Missing medicalRecordId or image data');
-      return res.status(400).json({ success: false, message: 'Missing medicalRecordId or image data' });
+    if (!medicalRecordId || !imageUrl) {
+      console.log('Missing medicalRecordId or imageUrl');
+      return res.status(400).json({ success: false, message: 'Missing medicalRecordId or imageUrl' });
     }
 
-    const image = req.file; // Access the uploaded image file
-    // Now you can save the image data to your database or handle it as needed
-
-    const dfuRecord = await DfuRecord.create({ medicalRecordId, image });
-    console.log('Image uploaded successfully:', dfuRecord);
-    return res.status(200).json({ success: true, message: 'Image uploaded successfully', dfuRecord });
+    // Now save the image URL to your database (PostgreSQL)
+    const dfuRecord = await DfuRecord.create({ medicalRecordId, image: imageUrl });
+    console.log('Image URL saved successfully:', dfuRecord);
+    return res.status(200).json({ success: true, message: 'Image URL saved successfully', dfuRecord });
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('Error uploading image URL:', error);
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

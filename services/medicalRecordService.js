@@ -68,3 +68,45 @@ exports.findLatestMedicalRecordByPatientId = async (patientId) => {
         throw new Error('Internal server error');
     }
 };
+
+// Find medical record by medicalRecordId
+exports.findMedicalRecordById = async (medicalRecordId) => {
+    try {
+      const medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+      return medicalRecord;
+    } catch (error) {
+      console.error('Error fetching medical record by ID:', error);
+      throw new Error('Internal server error');
+    }
+  };
+  
+  // Update medical record
+  exports.findMedicalRecordById = async (medicalRecordId) => {
+    try {
+      const medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+      return medicalRecord;
+    } catch (error) {
+      console.error('Error fetching medical record by ID:', error);
+      throw new Error('Internal server error');
+    }
+  };
+  
+  // Update medical record
+  exports.updateMedicalRecord = async (medicalRecordId, newData) => {
+    try {
+      const medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+  
+      if (!medicalRecord) {
+        throw new Error('Medical record not found');
+      }
+  
+      Object.assign(medicalRecord, newData); // Update fields
+  
+      await medicalRecord.save(); // Save the updated record
+  
+      return medicalRecord;
+    } catch (error) {
+      console.error('Error updating medical record:', error);
+      throw new Error('Internal server error');
+    }
+  };
