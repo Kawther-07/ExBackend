@@ -1,7 +1,6 @@
-
 const Glycemia = require('../models/glycemia');
 const moment = require('moment');
-
+const { Op } = require('sequelize');
 const glycemiaService = require('../services/glycemiaService');
 const MedicalRecord = require('../models/medicalRecord');
 
@@ -10,6 +9,12 @@ exports.createGlycemiaRecord = async (req, res) => {
     try {
         const { medicalRecordId, rate } = req.body;
         console.log(`Received create request - Medical Record ID: ${medicalRecordId}, Rate: ${rate}`);
+
+        // Verify if medicalRecordId exists
+        const medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+        if (!medicalRecord) {
+            return res.status(404).json({ error: 'Medical record not found' });
+        }
 
         // Call the service function to create the glycemia record
         const glycemiaRecord = await glycemiaService.createGlycemiaRecord(medicalRecordId, rate);
@@ -23,14 +28,35 @@ exports.createGlycemiaRecord = async (req, res) => {
     }
 };
 
-// Controller function to get glycemia records by patient ID
-exports.getGlycemiaRecordsByPatientId = async (req, res) => {
+// Controller function to get glycemia records by patient ID and date range
+exports.getGlycemiaRecordsByPatientIdAndDateRange = async (req, res) => {
     try {
         const { patientId } = req.params;
         console.log(`Fetching glycemia records for patient ID: ${patientId}`);
 
-        // Call the service function to fetch glycemia records for the specified patient
-        const glycemiaRecords = await glycemiaService.getGlycemiaRecordsByPatientId(patientId);
+        // Get the first and last day of the current month
+        const currentDate = new Date();
+        const firstDay = moment(currentDate).startOf('month').toDate();
+        const lastDay = moment(currentDate).endOf('month').toDate();
+
+        // Fetch medical record IDs for the given patient ID
+        const medicalRecords = await MedicalRecord.findAll({ where: { patientId: patientId } });
+        const medicalRecordIds = medicalRecords.map(record => record.id);
+
+        console.log('Medical Record IDs:', medicalRecordIds);
+
+        // Fetch glycemia records for the retrieved medical record IDs within the date range
+        const glycemiaRecords = await Glycemia.findAll({
+            where: {
+                medicalRecordId: {
+                    [Op.in]: medicalRecordIds
+                },
+                createdAt: {
+                    [Op.between]: [firstDay, lastDay]
+                }
+            },
+        });
+
         console.log('Fetched glycemia records:', glycemiaRecords);
 
         // Return the fetched glycemia records as JSON response

@@ -2,7 +2,7 @@
 // const { DataTypes } = require('sequelize');
 // const sequelize = require('../config/database');
 // const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-const moment = require('moment');
+//const moment = require('moment');
 
 // const MedicalRecord = sequelize.define('medical_record', {
 //     id: {
@@ -77,23 +77,14 @@ const moment = require('moment');
 // module.exports = MedicalRecord;
 
 
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const validBloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-
-const MedicalRecord = sequelize.define('medical_record', {
-
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-
 const validBloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
 const moment = require("moment");
 
 const MedicalRecord = sequelize.define(
   "medical_record",
   {
-
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -116,49 +107,20 @@ const MedicalRecord = sequelize.define(
       },
     },
     diabetesType: {
-
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    hasDFU: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
-    },
-    isSmoker: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
-    },
-    hadDiabetes: {
-        type: DataTypes.DATEONLY,
-        allowNull: true
-    },
-    bloodGroup: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        validate: {
-            isValidBloodGroup(value) {
-                if (value && !validBloodGroups.includes(value.toUpperCase())) {
-                    throw new Error('Invalid blood group');
-                }
-            }
-        }
-    }
-}, {
-
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     hasDFU: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
     },
     isSmoker: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
     },
     hadDiabetes: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     bloodGroup: {
       type: DataTypes.STRING,
@@ -173,35 +135,20 @@ const MedicalRecord = sequelize.define(
     },
   },
   {
-
     timestamps: true,
     underscored: true,
     tableName: "medical_record",
   }
 );
 
-MedicalRecord.prototype.toJSON = function() {
-    const values = { ...this.get() };
-    values.createdAtFormatted = moment(this.createdAt).format('YYYY-MM-DD HH:mm A');
-    values.updatedAtFormatted = moment(this.updatedAt).format('YYYY-MM-DD HH:mm A');
-    delete values.createdAt;
-    delete values.updatedAt;
-    return values;
-
 // Define virtual fields for formatted timestamps
 MedicalRecord.prototype.toJSON = function () {
-  const values = Object.assign({}, this.get());
-
-  // Format timestamps
+  const values = { ...this.get() };
   values.createdAtFormatted = moment(this.createdAt).format("YYYY-MM-DD HH:mm A");
   values.updatedAtFormatted = moment(this.updatedAt).format("YYYY-MM-DD HH:mm A");
-
-  // Exclude original timestamps
   delete values.createdAt;
   delete values.updatedAt;
-
   return values;
-
 };
 
 module.exports = MedicalRecord;
