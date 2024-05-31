@@ -104,6 +104,8 @@ const moment = require('moment');
 // };
 
 
+
+// Didn't change anything in here, let's ines test it first
 const MedicalRecord = require('../models/medicalRecord');
 const medicalRecordService = require('../services/medicalRecordService');
 

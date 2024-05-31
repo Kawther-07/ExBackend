@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /build
+!route_modules/
 
 # Logs
 logs
