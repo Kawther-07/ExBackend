@@ -52,6 +52,8 @@ router.get('/medical-record/:patientId', medicalRecordController.getMedicalRecor
 //router.patch('/medical-record/:patientId', medicalRecordController.updateMedicalRecord);
 // router.patch('/medical-record/:medicalRecordId', medicalRecordController.updateMedicalRecord);
 router.patch('/medical-record/patient/:patientId', medicalRecordController.updateMedicalRecordByPatientId);
+// Route to fetch Medical Record ID by Patient ID
+router.get('/medical-record-id/:patientId', medicalRecordController.getMedicalRecordIdByPatientId);
 
 
 // Forgot password
@@ -61,7 +63,7 @@ router.post('/reset-password', forgotPasswordController.resetPassword);
 
 // Glycemia
 router.post('/glycemia', glycemiaController.createGlycemiaRecord);
-router.get('/glycemia/:patientId', glycemiaController.getGlycemiaRecordsByPatientId);
+router.get('/glycemia/:patientId', glycemiaController.getGlycemiaRecordsByPatientIdAndDateRange);
 
 // DFU record
 router.post('/dfu-record', dfuRecordController.createDfuRecordWithImage);

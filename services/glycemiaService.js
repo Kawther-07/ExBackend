@@ -6,6 +6,12 @@ exports.createGlycemiaRecord = async (medicalRecordId, rate) => {
     try {
         console.log(`Creating glycemia record for Medical Record ID: ${medicalRecordId}, Rate: ${rate}`);
 
+        // Check if the medical record exists
+        const medicalRecord = await MedicalRecord.findByPk(medicalRecordId);
+        if (!medicalRecord) {
+            throw new Error('Medical record not found');
+        }
+
         const glycemiaRecord = await Glycemia.create({
             medicalRecordId: medicalRecordId,
             rate: rate,
@@ -20,9 +26,9 @@ exports.createGlycemiaRecord = async (medicalRecordId, rate) => {
     }
 };
 
-exports.getGlycemiaRecordsByPatientId = async (patientId) => {
+exports.getGlycemiaRecordsByPatientIdAndDateRange = async (patientId, startDate, endDate) => {
     try {
-        console.log(`Fetching glycemia records for patient ID: ${patientId}`);
+        console.log(`Fetching glycemia records for patient ID: ${patientId} between ${startDate} and ${endDate}`);
 
         // Fetch medical record IDs for the given patient ID
         const medicalRecords = await MedicalRecord.findAll({ where: { patientId: patientId } });
@@ -30,10 +36,13 @@ exports.getGlycemiaRecordsByPatientId = async (patientId) => {
 
         console.log('Medical Record IDs:', medicalRecordIds);
 
-        // Fetch glycemia records for the retrieved medical record IDs
+        // Fetch glycemia records for the retrieved medical record IDs within the date range
         const glycemiaRecords = await Glycemia.findAll({
             where: {
                 medicalRecordId: medicalRecordIds,
+                createdAt: {
+                    [Op.between]: [startDate, endDate]
+                }
             },
         });
 

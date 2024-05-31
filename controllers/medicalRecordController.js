@@ -151,6 +151,26 @@ exports.getMedicalRecord = async (req, res) => {
     }
 };
 
+exports.getMedicalRecordIdByPatientId = async (req, res) => {
+    const { patientId } = req.params;
+
+    try {
+        const medicalRecord = await MedicalRecord.findOne({
+            where: { patientId },
+            attributes: ['id'] // Return 'id' as medicalRecordId
+        });
+
+        if (!medicalRecord) {
+            return res.status(404).json({ error: 'Medical record not found' });
+        }
+
+        res.status(200).json({ medicalRecordId: medicalRecord.id }); // Return 'id' as medicalRecordId
+    } catch (error) {
+        console.error('Error fetching medical record ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 // Update the `updateMedicalRecord` function to ensure correct updating
 // Update the `updateMedicalRecord` function to ensure correct updating
 // exports.updateMedicalRecord = async (req, res) => {
