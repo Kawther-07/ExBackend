@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const PatientServices = require("../services/patient.service");
 // const MedicalRecordService = require('../services/medicalRecordService');
+const AuthServices = require("../services/auth.service");
 
 // Create patient
 exports.createPatient = async (req, res) => {
@@ -173,10 +174,36 @@ exports.getPatientNameById = async (req, res) => {
 //     }
 // };
 
+exports.getPatientById = async (req, res) => {
+  // Get patient profile and inside medical records
+  try {
+    const { patientId } = req.params;
+    const patient = await PatientPersonalProfile.findOne({
+      where: { patientId },
+      include: {
+        model: Patient,
+        required: true,
+        include: {
+          model: MedicalRecord,
+          include: Doctor,
+        },
+      },
+    });
+    if (!patient) {
+      return res.status(404).json({ status: false, message: "Patient not found" });
+    }
+    res.json({ status: true, data: patient });
+  } catch (error) {
+    console.error("Error fetching patient profile:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+// controllers/patient.controller.js
+
 exports.getPatients = async (req, res) => {
   try {
-    const { doctorId } = req.query;
-    if (doctorId) {
+    const user = req.user;
+    if (user.role === "doctor") {
       // Retrieve PatientPersonalProfiles with MedicalRecords for the specified doctorId
       const patientProfiles = await PatientPersonalProfile.findAll({
         include: [
@@ -186,23 +213,49 @@ exports.getPatients = async (req, res) => {
             include: [
               {
                 model: MedicalRecord,
-                where: { doctorId: doctorId }, // Filter by doctorId
+                where: { doctorId: user.doctor.id }, // Filter by doctorId
                 required: true,
               },
             ],
           },
         ],
       });
-      res.json({ status: true, patientProfiles });
+      res.json({ status: true, data: patientProfiles });
     } else {
       // Get All patient personal profiles for Admin Dashboard (if no doctorId is specified)
       const patientProfiles = await PatientPersonalProfile.findAll({
         include: [Patient],
       });
-      res.json({ status: true, patientProfiles });
+      res.json({ status: true, data: patientProfiles });
     }
   } catch (error) {
     console.error("Error fetching patient profiles:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.archivePatient = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const { isArchived } = req.body;
+    const archivedPatient = await Patient.archivePatient(patientId, isArchived);
+    res.json({ status: true, message: "Patient archive status updated successfully", data: archivedPatient });
+  } catch (error) {
+    console.error("Error updating patient archive status:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getArchivedPatients = async (req, res) => {
+  try {
+    const patients = await Patient.findAll({
+      where: { isArchived: true },
+      attributes: { exclude: ["password"] },
+      order: [["createdAt", "DESC"]],
+    });
+    res.json({ status: true, data: patients });
+  } catch (error) {
+    console.error("Error fetching archived patients:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };

@@ -3,16 +3,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const DoctorServices = require("../services/doctor.service");
+//const DoctorServices = require("../services/doctor.service");
+const AuthServices = require("../services/auth.service");
 
 // Create doctor
 exports.createDoctor = async (req, res) => {
   try {
-    const { first_name, last_name, email, phone, password, role, specialty, address } = req.body;
-
-    const isPhoneValid = DoctorServices.validatePhone(phone);
-    if (!isPhoneValid.status) {
-      return res.status(400).json({ ...isPhoneValid });
-    }
+    const { first_name, last_name, email, phone, password, role, speciality, address, bio, profilePicture, document } = req.body;
 
     // Check if doctor with the same email already exists
     const existingDoctor = await Doctor.findOne({ where: { email } });
@@ -20,12 +17,20 @@ exports.createDoctor = async (req, res) => {
       return res.status(400).json({ status: false, message: `The email ${email} is already registered` });
     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Create new doctor with hashed password
-    const doctor = await Doctor.create({ first_name, last_name, email, phone, password: hashedPassword, role, specialty, address });
+    const doctor = await Doctor.create({
+      first_name,
+      last_name,
+      email,
+      phone,
+      password,
+      role,
+      speciality,
+      address,
+      profilePicture,
+      document,
+      bio: bio || "",
+    });
     res.json({ status: true, message: "Doctor registered successfully", id: doctor.id });
   } catch (error) {
     console.error("Error creating doctor:", error);
@@ -55,8 +60,9 @@ exports.loginDoctor = async (req, res) => {
     }
 
     // Generate JWT token
-    const tokenData = { id: doctor.id, email: doctor.email };
-    const token = await DoctorServices.generateAccessToken(tokenData, "secret", "24h");
+    doctor = doctor.toJSON();
+    const tokenData = { doctor };
+    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, doctor });
   } catch (error) {
@@ -144,6 +150,112 @@ exports.getDoctorIdByName = async (req, res) => {
     res.status(200).json({ status: true, doctor_id: doctor.id });
   } catch (error) {
     console.error("Error fetching doctor ID:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getDoctors = async (req, res) => {
+  try {
+    const { includeArchived } = req.query;
+    const condition = includeArchived === 'true' ? {} : { isArchived: false };
+
+    const doctors = await Doctor.findAll({
+      where: condition,
+      attributes: { exclude: ["password"] },
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({ status: true, data: doctors });
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getDoctorById = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const doctor = await Doctor.findOne({
+      where: { id: doctorId },
+      attributes: { exclude: ["password"] },
+    });
+    if (!doctor) {
+      return res.status(404).json({ status: false, message: "Doctor not found" });
+    }
+    res.json({ status: true, data: doctor });
+  } catch (error) {
+    console.error("Error fetching doctor:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.updateDoctorProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    const { doctorId } = req.params;
+
+    // Check if the user is a doctor or an admin
+    if (user.role === "doctor" || user.role === "admin") {
+      let doctor;
+      if (user.role === "doctor") {
+        // For doctors, update their own profile
+        doctor = await Doctor.findOne({ where: { id: user.doctor.id } });
+      } else {
+        // For admins, update the profile of the specified doctor
+        doctor = await Doctor.findOne({ where: { id: doctorId } });
+      }
+
+      if (!doctor) {
+        return res.status(404).json({ status: false, message: "Doctor not found" });
+      }
+
+      // Get req.body without createdAt and updatedAt fields
+      const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
+      const updatedDoctor = await doctor.update(body);
+
+      // Generate new JWT token with new data
+      const tokenData = {
+        id: doctor.id,
+        email: doctor.email,
+        role: user.role, // Use the role of the user who is updating the profile
+        doctor: updatedDoctor.toJSON(),
+      };
+      const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+
+      res.status(200).json({ status: true, message: "Doctor profile updated successfully", token });
+    } else {
+      // If user is neither doctor nor admin, return unauthorized
+      return res.status(403).json({ status: false, message: "Unauthorized" });
+    }
+  } catch (error) {
+    console.error("Error updating doctor profile:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.archiveDoctor = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const { isArchived } = req.body;
+    const archivedDoctor = await Doctor.archiveDoctor(doctorId, isArchived);
+    res.json({ status: true, message: "Doctor archive status updated successfully", data: archivedDoctor });
+  } catch (error) {
+    console.error("Error updating doctor archive status:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getArchivedDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.findAll({
+      where: { isArchived: true },
+      attributes: { exclude: ["password"] },
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({ status: true, data: doctors });
+  } catch (error) {
+    console.error("Error fetching archived doctors:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };

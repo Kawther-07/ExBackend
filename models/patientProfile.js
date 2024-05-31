@@ -19,7 +19,7 @@ const PatientPersonalProfile = sequelize.define(
       },
     },
 
-    // i'm not sure if it's true or false, i mean we need these info for the recommendation system, don't we?
+    
     gender: {
       type: DataTypes.STRING,
       allowNull: false,

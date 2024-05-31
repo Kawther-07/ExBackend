@@ -50,6 +50,33 @@ exports.getPatientProfile = async (req, res) => {
 };
 
 
+//---------------------------------------------------------
+// From ines's branch, not sure if it's her code or my old code
+// exports.getPatientProfile = async (req, res) => {
+//     try {
+//         // Extract the patient's ID from the token if it exists
+//         const authorizationHeader = req.headers.authorization;
+//         if (!authorizationHeader) {
+//             return res.status(401).json({ status: false, message: 'Authorization header missing' });
+//         }
+        
+//         const token = authorizationHeader.split(' ')[1];
+//         const decodedToken = jwt.verify(token, 'secret');
+//         const patientId = decodedToken.id;
+
+//         // Fetch the patient profile using the patientId
+//         const profile = await patientProfileService.getPatientProfileByPatientId(patientId);
+
+//         if (!profile) {
+//             return res.status(404).json({ status: false, message: 'Patient profile not found' });
+//         }
+
+//         res.status(200).json({ status: true, profile });
+//     } catch (error) {
+//         console.error('Error fetching patient profile:', error);
+//         res.status(500).json({ status: false, message: 'Internal server error' });
+//     }
+// };
 
 // Update patient's profile
 exports.updatePatientProfile = async (req, res) => {

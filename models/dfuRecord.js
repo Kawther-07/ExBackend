@@ -52,5 +52,4 @@ DfuRecord.prototype.toJSON = function () {
 
   return values;
 };
-
 module.exports = DfuRecord;

@@ -27,11 +27,15 @@ const Patient = sequelize.define(
     },
     phone: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    isArchived: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   },
   {
@@ -52,5 +56,22 @@ function validatePhone(patient) {
     }
   }
 }
+
+
+// Method to archive/unarchive a patient
+Patient.archivePatient = async function(patientId, isArchived) {
+  try {
+    const patient = await this.findByPk(patientId);
+    if (!patient) {
+      throw new Error('Patient not found');
+    }
+    patient.isArchived = isArchived;
+    await patient.save();
+    return patient;
+  } catch (error) {
+    console.error('Error updating patient archive status:', error);
+    throw error;
+  }
+};
 
 module.exports = Patient;
