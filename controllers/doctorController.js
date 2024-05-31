@@ -110,10 +110,15 @@ exports.getDoctorProfile = async (req, res) => {
 
 exports.getDoctors = async (req, res) => {
   try {
+    const { includeArchived } = req.query;
+    const condition = includeArchived === 'true' ? {} : { isArchived: false };
+
     const doctors = await Doctor.findAll({
+      where: condition,
       attributes: { exclude: ["password"] },
       order: [["createdAt", "DESC"]],
     });
+
     res.json({ status: true, data: doctors });
   } catch (error) {
     console.error("Error fetching doctors:", error);
@@ -142,7 +147,7 @@ exports.updateDoctorProfile = async (req, res) => {
   try {
     const user = req.user;
     const { doctorId } = req.params;
-    
+
     // Check if the user is a doctor or an admin
     if (user.role === "doctor" || user.role === "admin") {
       let doctor;
@@ -182,3 +187,29 @@ exports.updateDoctorProfile = async (req, res) => {
   }
 };
 
+exports.archiveDoctor = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const { isArchived } = req.body;
+    const archivedDoctor = await Doctor.archiveDoctor(doctorId, isArchived);
+    res.json({ status: true, message: "Doctor archive status updated successfully", data: archivedDoctor });
+  } catch (error) {
+    console.error("Error updating doctor archive status:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};
+
+exports.getArchivedDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.findAll({
+      where: { isArchived: true },
+      attributes: { exclude: ["password"] },
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({ status: true, data: doctors });
+  } catch (error) {
+    console.error("Error fetching archived doctors:", error);
+    res.status(500).json({ status: false, message: "Internal server error" });
+  }
+};

@@ -1,3 +1,5 @@
+// models/doctor.js
+
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 const bcrypt = require("bcrypt");
@@ -61,7 +63,11 @@ const Doctor = sequelize.define(
     isDisabled: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
-    }
+    },
+    isArchived: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     timestamps: true,
@@ -84,11 +90,26 @@ function validatePhoneAndHashPassword(doctor) {
     }
   }
   if (doctor.password) {
-    // Hash the password
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(doctor.password, salt);
     doctor.password = hashedPassword;
   }
 }
+
+// Method to archive a doctor
+Doctor.archiveDoctor = async function(doctorId, isArchived) {
+  try {
+    const doctor = await this.findByPk(doctorId);
+    if (!doctor) {
+      throw new Error('Doctor not found');
+    }
+    doctor.isArchived = isArchived;
+    await doctor.save();
+    return doctor;
+  } catch (error) {
+    console.error('Error updating doctor archive status:', error);
+    throw error;
+  }
+};
 
 module.exports = Doctor;

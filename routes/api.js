@@ -27,7 +27,9 @@ router.get("/doctor/profile", doctorController.getDoctorProfile);
 router.get("/doctors", Authorize(["admin"]), doctorController.getDoctors);
 router.get("/doctor/:doctorId", Authorize(["admin"]), doctorController.getDoctorById);
 router.put("/doctor/:doctorId", Authorize(["admin", "doctor"]), doctorController.updateDoctorProfile);
-
+// doctor.controller.js
+router.patch('/doctors/archive/:doctorId', doctorController.archiveDoctor);
+router.get('/doctors/archived', doctorController.getArchivedDoctors);
 // Doctor And Admin Login
 router.post("/auth/login", authController.loginAdminAndDoctor);
 router.post("/auth/verifyUserToken", authController.verifyUserToken);
@@ -38,7 +40,8 @@ router.post("/patient/login", patientController.loginPatient);
 router.post("/patient/logout", patientController.logoutPatient);
 router.get("/patients", Authorize(["admin", "doctor"]), patientController.getPatients);
 router.get("/patient/:patientId", Authorize(["admin", "doctor"]), patientController.getPatientById);
-//router.put('/patients/:patientId/archive', patientController.archivePatient);
+router.patch('/patients/archive/:patientId', patientController.archivePatient);
+router.get('/patients/archived', patientController.getArchivedPatients);
 
 // Get patient name by patient ID
 router.get("/patient/name/:patientId", patientController.getPatientNameById);

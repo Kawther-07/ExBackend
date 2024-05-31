@@ -98,7 +98,6 @@ exports.getAdminProfile = async (req, res) => {
   }
 };
 
-// Update admin profile
 exports.updateAdminProfile = async (req, res) => {
   try {
     const user = req.user; // Assuming you have authentication middleware that sets the user object
@@ -124,11 +123,13 @@ exports.updateAdminProfile = async (req, res) => {
       role: admin.role,
       // Add any additional data you want to include in the token
     };
-    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWT_SECRET, "24h");
 
     res.status(200).json({ status: true, message: "Admin profile updated successfully", token });
   } catch (error) {
-    console.error("Error updating admin profile:", error);
+    console.error("Error updating admin profile:", error.message, error.stack);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
+
+
