@@ -16,18 +16,22 @@ const upload = require("../services/upload.service");
 // const upload = require("../config/multerConfig"); 
 const router = express.Router();
 
+
 // Admin
 router.post("/admin/register", adminController.createAdmin);
 router.post("/admin/login", adminController.loginAdmin);
 router.post("/admin/logout", adminController.logoutAdmin);
 router.get("/admin/profile", adminController.getAdminProfile);
+
 router.put("/admin/:adminId", Authorize(["admin", "doctor"]), adminController.updateAdminProfile);
+
 
 // Doctor
 router.post("/doctor/register", doctorController.createDoctor);
 router.post("/doctor/login", doctorController.loginDoctor);
 router.post("/doctor/logout", doctorController.logoutDoctor);
 router.get("/doctor/profile", doctorController.getDoctorProfile);
+
 router.get("/doctors", Authorize(["admin"]), doctorController.getDoctors);
 router.get("/doctor/:doctorId", Authorize(["admin"]), doctorController.getDoctorById);
 router.put("/doctor/:doctorId", Authorize(["admin", "doctor"]), doctorController.updateDoctorProfile);
@@ -37,7 +41,6 @@ router.get('/doctors/archived', doctorController.getArchivedDoctors);
 // Doctor And Admin Login
 router.post("/auth/login", authController.loginAdminAndDoctor);
 router.post("/auth/verifyUserToken", authController.verifyUserToken);
-
 
 
 // Define route to fetch list of doctors
@@ -95,7 +98,6 @@ router.get("/dfu-record/:patientId", dfuRecordController.getDfuRecordsByPatientI
 router.post("/educational-resources", educResourceController.createEducationalResource);
 router.get("/educational-resources", educResourceController.getAllEducationalResources);
 router.get("/educational-resources/:id", educResourceController.getEducationalResourceById);
-
 
 // Files Upload
 router.post("/upload", upload().array("files", 5), uploadController.uploadFiles);
