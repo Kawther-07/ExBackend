@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const Admin = require("../models/admin");
+const Doctor = require("../models/doctor");
 
 class AuthServices {
   static async generateAccessToken(tokenData, JWTSecret_Key, JWT_EXPIRE) {
