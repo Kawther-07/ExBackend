@@ -32,21 +32,18 @@ router.post("/doctor/login", doctorController.loginDoctor);
 router.post("/doctor/logout", doctorController.logoutDoctor);
 router.get("/doctor/profile", doctorController.getDoctorProfile);
 
+// Routes that require authentication
 router.get("/doctors", Authorize(["admin"]), doctorController.getDoctors);
 router.get("/doctor/:doctorId", Authorize(["admin"]), doctorController.getDoctorById);
 router.put("/doctor/:doctorId", Authorize(["admin", "doctor"]), doctorController.updateDoctorProfile);
-// doctor.controller.js
-router.patch('/doctors/archive/:doctorId', doctorController.archiveDoctor);
-router.get('/doctors/archived', doctorController.getArchivedDoctors);
-// Doctor And Admin Login
+router.patch("/doctors/archive/:doctorId", doctorController.archiveDoctor);
+router.get("/doctors/archived", doctorController.getArchivedDoctors);
 router.post("/auth/login", authController.loginAdminAndDoctor);
 router.post("/auth/verifyUserToken", authController.verifyUserToken);
+router.get("/doctors/list", doctorController.getDoctorList);
 
-
-// Define route to fetch list of doctors
-router.get("/doctors", doctorController.getDoctorList);
-// New route to fetch doctor ID by name
-router.get("/doctor/id", doctorController.getDoctorIdByName);
+// Public route (no authentication required)
+router.get("/doctorId", doctorController.getDoctorIdByName);
 
 // Patient
 router.post("/patient/register", patientController.createPatient);
