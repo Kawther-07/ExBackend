@@ -18,16 +18,24 @@ exports.createPatient = async (req, res) => {
     }
 
     // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new patient with hashed password
-    const patient = await Patient.create({ first_name, last_name, email, phone, password: hashedPassword });
+    const patient = await Patient.create({
+      first_name,
+      last_name,
+      email,
+      phone,
+      password: hashedPassword
+    });
 
-    // Assuming selected_doctor is the field where doctorId is coming from
+    // Generate JWT token
+    const tokenData = { id: patient.id, email: patient.email };
+    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+
     const doctorId = selected_doctor || null;
 
-    res.json({ status: true, message: "Patient registered successfully", id: patient.id, doctorId });
+    res.json({ status: true, message: "Patient registered successfully", id: patient.id, doctorId, token });
   } catch (error) {
     console.error("Error creating patient:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
