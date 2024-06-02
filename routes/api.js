@@ -1,4 +1,5 @@
 const express = require("express");
+require('dotenv').config();
 const adminController = require("../controllers/adminController");
 const doctorController = require("../controllers/doctorController");
 const patientController = require("../controllers/patientController");

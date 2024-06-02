@@ -32,9 +32,9 @@ exports.loginAdminAndDoctor = async (req, res) => {
       id: user.id,
       email: user.email,
       role: user.role,
-      ...(user.role === "admin" ? { admin: user.toJSON() } : { doctor: user.toJSON() }),
+      // ...(user.role === "admin" ? { admin: user.toJSON() } : { doctor: user.toJSON() }),
     };
-    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
     res.status(200).json({
       status: true,
@@ -53,7 +53,7 @@ exports.verifyUserToken = async (req, res, next) => {
   const { token } = req.body;
   if (!token) return res.status(401).json({ status: false, message: "Access Denied" });
   try {
-    const verified = jwt.verify(token, "secret");
+    const verified = jwt.verify(token, process.env.JWTSecret_Key);
     return res.status(200).json({ status: true, message: "Retrieved user data", data: verified });
   } catch (error) {
     res.status(401).json({ status: false, message: "Invalid Token or session expired" });

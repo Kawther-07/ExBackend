@@ -49,7 +49,7 @@ exports.loginAdmin = async (req, res) => {
     admin = admin.toJSON();
     // Generate JWT token
     const tokenData = { admin }; // Customize token payload as needed
-    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, name: admin.first_name });
   } catch (error) {
@@ -114,16 +114,16 @@ exports.updateAdminProfile = async (req, res) => {
 
     // Update only the fields that were passed in the request body.
     const body = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key !== "createdAt" && key !== "updatedAt"));
-    await admin.update(body);
+    const updatedAdmin = await admin.update(body);
 
     // Optionally, generate a new JWT token with updated data
     const tokenData = {
       id: admin.id,
       email: admin.email,
       role: admin.role,
-      // Add any additional data you want to include in the token
+      admin: updatedAdmin.toJSON(),
     };
-    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWT_SECRET, "24h");
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWT_SECRET, process.env.JWT_EXPIRE);
 
     res.status(200).json({ status: true, message: "Admin profile updated successfully", token });
   } catch (error) {

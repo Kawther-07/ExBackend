@@ -31,7 +31,7 @@ exports.createPatient = async (req, res) => {
 
     // Generate JWT token
     const tokenData = { id: patient.id, email: patient.email };
-    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
     const doctorId = selected_doctor || null;
 
@@ -65,7 +65,7 @@ exports.loginPatient = async (req, res, next) => {
 
     // Generate JWT token
     const tokenData = { id: patient.id, email: patient.email };
-    const token = await PatientServices.generateAccessToken(tokenData, "secret", "24h");
+    const token = await PatientServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, name: patient.first_name });
   } catch (error) {

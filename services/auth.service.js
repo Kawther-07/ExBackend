@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/admin");
 const Doctor = require("../models/doctor");
 
+
 class AuthServices {
-  static async generateAccessToken(tokenData, JWTSecret_Key, JWT_EXPIRE) {
+  static async generateAccessToken(tokenData) {
     if (tokenData?.password) {
       delete tokenData.password;
     }
@@ -13,7 +14,14 @@ class AuthServices {
     if (tokenData?.doctor?.password) {
       delete tokenData.doctor.password;
     }
-    console.log("tokenData: ", tokenData);
+
+    const JWTSecret_Key = process.env.JWTSecret_Key;
+    const JWT_EXPIRE = process.env.JWT_EXPIRE;
+
+    if (!JWTSecret_Key) {
+      throw new Error("JWTSecret_Key is not defined");
+    }
+
     return jwt.sign(tokenData, JWTSecret_Key, { expiresIn: JWT_EXPIRE });
   }
 

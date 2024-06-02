@@ -62,7 +62,7 @@ exports.loginDoctor = async (req, res) => {
     // Generate JWT token
     doctor = doctor.toJSON();
     const tokenData = { doctor };
-    const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
     res.status(200).json({ status: true, success: "Successfully logged in", token, doctor });
   } catch (error) {
@@ -220,7 +220,7 @@ exports.updateDoctorProfile = async (req, res) => {
         role: user.role, // Use the role of the user who is updating the profile
         doctor: updatedDoctor.toJSON(),
       };
-      const token = await AuthServices.generateAccessToken(tokenData, "secret", "24h");
+      const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
       res.status(200).json({ status: true, message: "Doctor profile updated successfully", token });
     } else {
