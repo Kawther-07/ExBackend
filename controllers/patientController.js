@@ -211,6 +211,8 @@ exports.getPatientById = async (req, res) => {
 exports.getPatients = async (req, res) => {
   try {
     const user = req.user;
+    const { includeArchived } = req.query;
+    const condition = includeArchived === 'true' ? { isArchived: true } : { isArchived: false };
     if (user.role === "doctor") {
       // Retrieve PatientPersonalProfiles with MedicalRecords for the specified doctorId
       const patientProfiles = await PatientPersonalProfile.findAll({
@@ -218,6 +220,7 @@ exports.getPatients = async (req, res) => {
           {
             model: Patient,
             required: true,
+            where: condition,
             include: [
               {
                 model: MedicalRecord,
@@ -232,7 +235,13 @@ exports.getPatients = async (req, res) => {
     } else {
       // Get All patient personal profiles for Admin Dashboard (if no doctorId is specified)
       const patientProfiles = await PatientPersonalProfile.findAll({
-        include: [Patient],
+        include: [
+          { 
+            model: Patient,
+            required: true,
+            where: condition,
+          },
+        ],
       });
       res.json({ status: true, data: patientProfiles });
     }

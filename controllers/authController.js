@@ -32,7 +32,7 @@ exports.loginAdminAndDoctor = async (req, res) => {
       id: user.id,
       email: user.email,
       role: user.role,
-      // ...(user.role === "admin" ? { admin: user.toJSON() } : { doctor: user.toJSON() }),
+      ...(user.role === "admin" ? { admin: user.toJSON() } : { doctor: user.toJSON() }),
     };
     const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
@@ -54,7 +54,23 @@ exports.verifyUserToken = async (req, res, next) => {
   if (!token) return res.status(401).json({ status: false, message: "Access Denied" });
   try {
     const verified = jwt.verify(token, process.env.JWTSecret_Key);
-    return res.status(200).json({ status: true, message: "Retrieved user data", data: verified });
+    // Retrieve Admin Or Doctor
+    let user = await AuthServices.checkAdminAndDoctor(verified.email);
+    if (!user) {
+      return res.status(404).json({ status: false, message: "User does not exist" });
+    }
+    if (user.role === "doctor" && user.isDisabled) {
+      return res.status(401).json({ status: false, message: "Your account is disabled until it's enabled by an Admin" });
+    }
+
+    const tokenData = {
+      id: verified.id,
+      email: verified.email,
+      role: verified.role,
+      ...(user.role === "admin" ? { admin: user.toJSON() } : { doctor: user.toJSON() }),
+    };
+
+    return res.status(200).json({ status: true, message: "Retrieved user data", data: tokenData });
   } catch (error) {
     res.status(401).json({ status: false, message: "Invalid Token or session expired" });
   }
