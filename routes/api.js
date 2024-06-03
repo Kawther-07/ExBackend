@@ -9,6 +9,7 @@ const forgotPasswordController = require("../controllers/forgotPasswordControlle
 const glycemiaController = require("../controllers/glycemiaController");
 const dfuRecordController = require("../controllers/dfuRecordController");
 const educResourceController = require("../controllers/educResourceController");
+const dashboardController = require("../controllers/dashboardController");
 
 const authController = require("../controllers/authController");
 const Authorize = require("../middlewares/middlewares");
@@ -99,5 +100,8 @@ router.get("/educational-resources/:id", educResourceController.getEducationalRe
 
 // Files Upload
 router.post("/upload", upload().array("files", 5), uploadController.uploadFiles);
+
+// Dashboard statistics
+router.get("/dashboard/statistics", Authorize(["doctor", "admin"]), dashboardController.getStatistics);
 
 module.exports = router;
