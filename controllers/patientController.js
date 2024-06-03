@@ -10,7 +10,7 @@ const AuthServices = require("../services/auth.service");
 exports.createPatient = async (req, res) => {
   try {
     const { first_name, last_name, email, phone, password, selected_doctor } = req.body;
-
+    console.log("recieved data:", req.body);
     // Check if patient with the same email already exists
     const existingPatient = await Patient.findOne({ where: { email } });
     if (existingPatient) {
@@ -20,22 +20,21 @@ exports.createPatient = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new patient with hashed password
+    // Create new patient with hashed password and doctorId
     const patient = await Patient.create({
       first_name,
       last_name,
       email,
       phone,
-      password: hashedPassword
+      password: hashedPassword,
+      doctorid: selected_doctor || null, // Ensure this matches your database column name
     });
 
     // Generate JWT token
     const tokenData = { id: patient.id, email: patient.email };
     const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
-    const doctorId = selected_doctor || null;
-
-    res.json({ status: true, message: "Patient registered successfully", id: patient.id, doctorId, token });
+    res.json({ status: true, message: "Patient registered successfully", id: patient.id, doctorId: patient.doctorid, token });
   } catch (error) {
     console.error("Error creating patient:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
@@ -43,36 +42,45 @@ exports.createPatient = async (req, res) => {
 };
 
 // Login patient
-exports.loginPatient = async (req, res, next) => {
+exports.loginPatient = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ status: false, message: "Invalid parameters" });
-    }
-
-    // Retrieve patient by email
-    let patient = await PatientServices.checkPatient(email);
+    // Check if the patient exists
+    const patient = await Patient.findOne({ where: { email }, include: [{ model: Doctor, as: 'doctor' }] });
     if (!patient) {
-      return res.status(404).json({ status: false, message: "Patient does not exist" });
+      return res.status(400).json({ status: false, message: "Invalid email or password" });
     }
 
-    // Compare passwords
-    const isPasswordCorrect = await bcrypt.compare(password, patient.password);
-    if (!isPasswordCorrect) {
-      return res.status(401).json({ status: false, message: "Invalid patient name or password" });
+    // Check if password is correct
+    const isMatch = await bcrypt.compare(password, patient.password);
+    if (!isMatch) {
+      return res.status(400).json({ status: false, message: "Invalid email or password" });
     }
 
     // Generate JWT token
     const tokenData = { id: patient.id, email: patient.email };
-    const token = await PatientServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
+    const token = await AuthServices.generateAccessToken(tokenData, process.env.JWTSecret_Key, process.env.JWT_EXPIRE);
 
-    res.status(200).json({ status: true, success: "Successfully logged in", token, name: patient.first_name });
+    // Retrieve doctor ID if exists
+    const doctorId = patient.doctor ? patient.doctor.id : null;
+
+    res.json({ 
+      status: true, 
+      message: "Successfully logged in", 
+      token, 
+      id: patient.id, 
+      doctorId, 
+      name: `${patient.first_name} ${patient.last_name}` 
+    });
   } catch (error) {
     console.error("Error logging in patient:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
+
+
+
 
 // Lougout patient ----FINALE
 exports.logoutPatient = async (req, res) => {

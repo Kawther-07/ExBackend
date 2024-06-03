@@ -37,6 +37,14 @@ const Patient = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    doctorid: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'doctor', // Make sure this matches your actual doctor model/table
+        key: 'id',
+      },
+    },
   },
   {
     timestamps: true,
@@ -46,7 +54,6 @@ const Patient = sequelize.define(
 );
 
 Patient.beforeCreate(validatePhone);
-// Patient.beforeUpdate(validatePhone); needed to comment this for the reset password to work.
 
 function validatePhone(patient) {
   if (patient.phone) {
@@ -56,7 +63,6 @@ function validatePhone(patient) {
     }
   }
 }
-
 
 // Method to archive/unarchive a patient
 Patient.archivePatient = async function(patientId, isArchived) {
