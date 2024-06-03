@@ -15,6 +15,8 @@ Doctor.hasMany(MedicalRecord, { foreignKey: "doctorId" });
 MedicalRecord.belongsTo(Patient, { foreignKey: "patientId" });
 Patient.hasOne(MedicalRecord, { foreignKey: "patientId" }); // Changed to hasOne for one-to-one relationship
 
+Patient.belongsTo(Doctor, { as: 'doctor', foreignKey: 'doctorid' });
+
 // Export models and sequelize connection
 module.exports = {
   sequelize,
