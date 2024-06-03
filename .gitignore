@@ -44,6 +44,7 @@ lerna-debug.log*
 .env.local
 package-lock.json
 config/smtpConfig.js
+config.json
 
 # temp directory
 .temp
