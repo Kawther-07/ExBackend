@@ -46,6 +46,7 @@ package-lock.json
 config/smtpConfig.js
 config.json
 doolabmobile-4d2a0-firebase-adminsdk-bncu3-0692b38b7b.json
+
 # temp directory
 .temp
 .tmp
