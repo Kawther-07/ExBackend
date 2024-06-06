@@ -89,6 +89,7 @@ router.post("/glycemia", glycemiaController.createGlycemiaRecord);
 router.get("/glycemia/:patientId", glycemiaController.getGlycemiaRecordsByPatientIdAndDateRange);
 
 // DFU record
+router.post('/uploadPic', dfuRecordController.uploadImage);
 router.post("/dfu-record", dfuRecordController.createDfuRecordWithImage);
 router.get("/dfu-record/:patientId", dfuRecordController.getDfuRecordsByPatientId);
 // router.post("/dfu-record/upload", upload.single("image"), dfuRecordController.uploadImage);
