@@ -4,12 +4,12 @@ const {
   Patient,
   Doctor,
   MedicalRecord,
-  PatientPersonalProfile,
 } = require("../models/associations"); // Adjust the path as necessary
 
 exports.getStatistics = async (req, res) => {
   try {
     const user = req.user;
+    console.log("user: ", user);
     let total_users = 0;
     let total_patients = 0;
     let total_doctors = 0;
@@ -24,11 +24,22 @@ exports.getStatistics = async (req, res) => {
           where: { doctorId: user.doctor.id },
         },
       });
+
       total_patients_archived = await Patient.count({
         where: { isArchived: true },
         include: {
           model: MedicalRecord,
           where: { doctorId: user.doctor.id },
+        },
+      });
+      res.json({
+        status: true,
+        data: {
+          total_users,
+          total_patients,
+          total_doctors,
+          total_doctors_archived,
+          total_patients_archived,
         },
       });
     } else {
