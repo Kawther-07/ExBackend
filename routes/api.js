@@ -83,6 +83,7 @@ router.get("/medical-record-id/:patientId", medicalRecordController.getMedicalRe
 router.post("/forgot-password", forgotPasswordController.forgotPassword);
 router.post("/verify-code", forgotPasswordController.verifyCode);
 router.post("/reset-password", forgotPasswordController.resetPassword);
+router.post("/reset-password-admins-doctors", forgotPasswordController.resetPasswordAdminAndDoctors);
 
 // Glycemia
 router.post("/glycemia", glycemiaController.createGlycemiaRecord);

@@ -40,6 +40,35 @@ class AuthServices {
       throw error;
     }
   }
+
+  static async resetAdminDoctorsPassword(email, newPassword) {
+    try {
+        // Find the patient by email
+        let user = null;
+        const doctor = await Doctor.findOne({ where: { email } });
+        if(!doctor) {
+          const admin = await Admin.findOne({ where: { email } });
+          if(!admin) {
+            throw new Error("User not found");
+          }else {
+            user = admin;
+          }
+        } else {
+          user = doctor;
+        }
+
+        // Update user password with the new password
+        user.password = newPassword;
+
+        // Save the changes
+        await user.save();
+
+        // Return true indicating success
+        return true;
+    } catch (error) {
+        throw error; // Propagate error to caller
+    }
+  }
 }
 
 module.exports = AuthServices;

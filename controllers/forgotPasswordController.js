@@ -3,6 +3,7 @@ const forgotPasswordModel = require('../models/forgotPassword');
 // const { Patient } = require('../models/patient');
 const bcrypt = require('bcrypt');
 const PatientServices = require('../services/patient.service');
+const AuthServices = require('../services/auth.service');
 
 // Create a transporter object with SMTP server settings from environment variables
 // Create a transporter object with SMTP server settings from environment variables
@@ -88,9 +89,29 @@ async function resetPassword(req, res) {
     }
 }
 
+// Reset Password for Admin and Doctors
+async function resetPasswordAdminAndDoctors(req, res) {
+    const { email, newPassword } = req.body;
+
+    try {
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Call the resetAdminDoctorsPassword method from the AuthServices class
+        await AuthServices.resetAdminDoctorsPassword(email, hashedPassword);
+
+        // Send success response
+        res.status(200).json({ success: true, message: "Password reset successfully"});
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        res.status(500).json({ success: false, message: `Error resetting password. ${error}` });
+    }
+}
+
 
 module.exports = {
     forgotPassword,
     verifyCode,
-    resetPassword
+    resetPassword,
+    resetPasswordAdminAndDoctors
 };

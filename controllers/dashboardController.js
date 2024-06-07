@@ -9,7 +9,6 @@ const {
 exports.getStatistics = async (req, res) => {
   try {
     const user = req.user;
-    console.log("user: ", user);
     let total_users = 0;
     let total_patients = 0;
     let total_doctors = 0;
