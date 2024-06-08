@@ -91,7 +91,7 @@ router.get("/glycemia/:patientId", glycemiaController.getGlycemiaRecordsByPatien
 // DFU record
 router.post('/uploadPic', dfuRecordController.uploadImage);
 router.post("/dfu-record", dfuRecordController.createDfuRecordWithImage);
-router.get("/dfu-record/:patientId", dfuRecordController.getDfuRecordsByPatientId);
+router.get("/dfu-record/:patientId", dfuRecordController.getDfuRecordsByMedicalRecordId);
 // router.post("/dfu-record/upload", upload.single("image"), dfuRecordController.uploadImage);
 
 // Educational resources
