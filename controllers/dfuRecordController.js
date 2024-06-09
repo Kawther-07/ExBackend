@@ -74,5 +74,21 @@ exports.getDfuRecordsByMedicalRecordId = async (req, res) => {
   }
 };
 
+exports.getDFURecordsByDoctorId = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+
+    const dfuRecords = await DfuRecordService.getDfuRecordsByDoctorId(doctorId);
+
+    if (!dfuRecords || dfuRecords.length === 0) {
+      return res.status(200).json({ status: false, message: 'No DFU records found' });
+    }
+
+    return res.status(200).json({ status: true, dfuRecords });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: 'Internal server error' });
+  }
+}
+
 
 

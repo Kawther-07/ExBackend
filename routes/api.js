@@ -94,6 +94,7 @@ router.post('/uploadPic', dfuRecordController.uploadImage);
 router.post("/dfu-record", dfuRecordController.createDfuRecordWithImage);
 router.get("/dfu-record/:patientId", dfuRecordController.getDfuRecordsByMedicalRecordId);
 // router.post("/dfu-record/upload", upload.single("image"), dfuRecordController.uploadImage);
+router.get("/dfu-records-by-doctor-id/:doctorId", dfuRecordController.getDFURecordsByDoctorId);
 
 // Educational resources
 router.post("/educational-resources", educResourceController.createEducationalResource);
