@@ -18,14 +18,14 @@ const DfuRecord = sequelize.define(
         key: "id",
       },
     },
-    view: {
+    prediction: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    // description: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
     image: {
       type: DataTypes.STRING,
       allowNull: false,

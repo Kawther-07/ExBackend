@@ -44,7 +44,8 @@ lerna-debug.log*
 .env.local
 package-lock.json
 config/smtpConfig.js
-
+firebase/
+firebase.js
 
 # temp directory
 .temp
