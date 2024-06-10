@@ -1,10 +1,6 @@
 const { Op } = require("sequelize");
 const sequelize = require("../config/database");
-const {
-  Patient,
-  Doctor,
-  MedicalRecord,
-} = require("../models/associations"); // Adjust the path as necessary
+const { Patient, Doctor, MedicalRecord } = require("../models/associations"); // Adjust the path as necessary
 
 exports.getStatistics = async (req, res) => {
   try {
@@ -14,6 +10,9 @@ exports.getStatistics = async (req, res) => {
     let total_doctors = 0;
     let total_doctors_archived = 0;
     let total_patients_archived = 0;
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
     if (user.role === "doctor") {
       // Get total number of patients fo the specified doctorId
       total_patients = await Patient.count({
@@ -31,6 +30,43 @@ exports.getStatistics = async (req, res) => {
           where: { doctorId: user.doctor.id },
         },
       });
+
+      const registeredCountPatientsRaw = await Patient.findAll({
+        where: {
+          created_at: { [Op.gte]: sevenDaysAgo },
+        },
+        include: [
+          {
+            model: MedicalRecord,
+            attributes: [],
+            where: { doctorId: user.doctor.id },
+          },
+        ],
+      });
+
+      const registeredCountPatients = await Patient.findAll({
+        where: {
+          created_at: { [Op.gte]: sevenDaysAgo },
+        },
+        include: [
+          {
+            model: MedicalRecord,
+            attributes: [],
+            where: { doctorId: user.doctor.id },
+          },
+        ],
+        attributes: [
+          [sequelize.fn("date", sequelize.col("patient.created_at")), "date"],
+          [sequelize.fn("count", sequelize.col("patient.id")), "count"],
+          [sequelize.literal("'Patient'"), "role"],
+        ],
+        group: [sequelize.fn("date", sequelize.col("patient.created_at"))],
+      });
+
+      const registeredCount = [
+        ...registeredCountPatients,
+      ];
+
       res.json({
         status: true,
         data: {
@@ -39,6 +75,7 @@ exports.getStatistics = async (req, res) => {
           total_doctors,
           total_doctors_archived,
           total_patients_archived,
+          registeredCount,
         },
       });
     } else {
@@ -48,9 +85,6 @@ exports.getStatistics = async (req, res) => {
       total_doctors_archived = await Doctor.count({
         where: { isArchived: true },
       });
-      // array of doctors and patients registered count for each day (for the last 7 days)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
       const registeredCountPatients = await Patient.findAll({
         where: {
